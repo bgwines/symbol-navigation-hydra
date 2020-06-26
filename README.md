@@ -3,14 +3,12 @@ The Spacemacs Auto-Highlight Symbol Hydra, ported over to vanilla Emacs
 
 ## Recommendations
 
-* set `ahs-case-fold-search` to `nil`
+```elisp
+(setq-default ahs-case-fold-search nil)
+(setq-default ahs-default-range 'ahs-range-whole-buffer)
+```
 
 ## TODO
-
-### _r_ keeps resetting from "Buffer"
-
-* try `ahs-default-range'
-* since temporarily switching triggers some crazy latency
 
 ### simultaneously display `overlay-count' for all three ranges
 

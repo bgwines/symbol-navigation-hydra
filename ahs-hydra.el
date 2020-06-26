@@ -53,6 +53,7 @@ _D_: nextdef
        )
       )
     )
+
     (setq DEFUN t)
   )
 
