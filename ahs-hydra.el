@@ -7,8 +7,8 @@
 ----------------------------------------------------------
 _n_: next          _f_: folder       _r_: range         _e_: iedit
 _N_/_p_: previous    _g_: project      _R_: reset         _s_: swoop
-_d_: prevdef       ^ ^               _q_: cancel
-_D_: nextdef
+_d_: prevdef       ^ ^               _z_: recenter
+_D_: nextdef       ^ ^               _q_: cancel
 %s(footer)
 "
   ("n" quick-ahs-forward)
