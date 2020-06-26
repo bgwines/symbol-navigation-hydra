@@ -10,6 +10,12 @@ The Spacemacs Auto-Highlight Symbol Hydra, ported over to vanilla Emacs
 
 ## TODO
 
+### only rerender what needs to change
+
+### expose variable to hide legend
+
+recommend hiding by default, but the default behavior should be to show it
+
 ### simultaneously display `overlay-count' for all three ranges
 
 no idea how to do this

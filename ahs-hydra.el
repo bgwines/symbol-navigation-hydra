@@ -32,26 +32,53 @@ _D_: nextdef
          (current-overlay (format "%s" ahs-current-overlay))
          (st (ahs-stat))
          (plighter (ahs-current-plugin-prop 'lighter))
-         (plugin (cond ((string= plighter "HS")  "Display")
-                       ((string= plighter "HSA") "Buffer")
-                       ((string= plighter "HSD") "Function")))
-         (face (cond ((string= plighter "HS")  ahs-plugin-defalt-face)
-                     ((string= plighter "HSA") ahs-plugin-whole-buffer-face)
-                     ((string= plighter "HSD") ahs-plugin-bod-face)))
+         (ahs-plugin-defalt-face-inactive
+          '((t (:foreground "Black" :background "#3a2303"))))
+         (ahs-plugin-whole-buffer-face-inactive
+          '((t (:foreground "Black" :background "#182906"))))
+         (ahs-plugin-bod-face-inactive
+          '((t (:foreground "Black" :background "#0b2d5c"))))
          )
 
-    (while (not (string= overlay current-overlay))
-      (setq i (1+ i))
-      (setq overlay (format "%s" (nth i ahs-overlay-list))))
-    (let* ((x/y (format "[%s/%s]" (- overlay-count i) overlay-count))
-           (hidden (if (< 0 (- overlay-count (nth 4 st))) "*" ""))
-           )
-      (concat
-       (propertize "AHS Hydra" 'face `(:box t :weight bold)) "  "
-       (propertize (format " %s " plugin) 'face face) "  "
-       (format "%s%s " x/y hidden)
-       )
-      )
+    (defun plugin-name (plugin)
+      (cond ((string= plugin "HS")  "Display")
+            ((string= plugin "HSA") "Buffer")
+            ((string= plugin "HSD") "Function")))
+
+    (defun is-active (plugin)
+      (string= plugin plighter))
+
+    (defun plugin-color (plugin)
+      (if (is-active plugin)
+          (cond ((string= plugin "HS")  ahs-plugin-defalt-face)
+                ((string= plugin "HSA") ahs-plugin-whole-buffer-face)
+                ((string= plugin "HSD") ahs-plugin-bod-face))
+        (cond ((string= plugin "HS")  ahs-plugin-defalt-face-inactive)
+              ((string= plugin "HSA") ahs-plugin-whole-buffer-face-inactive)
+              ((string= plugin "HSD") ahs-plugin-bod-face-inactive))))
+
+    (defun get-active-locator ()
+      (while (not (string= overlay current-overlay))
+        (setq i (1+ i))
+        (setq overlay (format "%s" (nth i ahs-overlay-list))))
+      (let* ((x/y (format "[%s/%s]" (- overlay-count i) overlay-count)))
+        x/y))
+
+    (defun plugin-component (plugin)
+      (setq name (propertize (plugin-name plugin) 'face (plugin-color plugin)))
+      (if (is-active plugin)
+          (add-face-text-property 0 (length name) 'italic t name) nil)
+
+      ;; `ahs-search-symbol'?
+      (setq locator (if (is-active plugin) (get-active-locator) "[?/?]"))
+      (concat name locator))
+
+    (concat
+     (propertize "AHS Hydra" 'face `(:box t :weight bold)) "  "
+     (plugin-component "HSD") "  "
+     (plugin-component "HSA") "  "
+     (plugin-component "HS")
+     )
     )
   )
 
