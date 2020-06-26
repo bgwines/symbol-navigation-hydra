@@ -1,7 +1,6 @@
 ;;; ~/doom-config/ahs-hydra.el -*- lexical-binding: t; -*-
 
 (defhydra hydra-auto-symbol-highlight (:hint nil)
-  ;; this should be modeled after spacemacs//symbol-highlight-doc
   "
 %s(get-range-name)
 ^Navigation^       ^Search^          ^AHS Hydra^        ^Magic^
@@ -24,50 +23,9 @@ _D_: nextdef
   ("f" (helm-projectile-ag-the-selection t) :exit t)
   ("g" (helm-projectile-ag-the-selection nil) :exit t)
   ("q" nil))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (spacemacs/defer-until-after-user-config                                    ;;
-;;  '(lambda ()                                                                ;;
-;;     (eval                                                                   ;;
-;;      (append                                                                ;;
-;;       '(defhydra ,func                                                      ;;
-;;          (nil nil                                                           ;;
-;;           :hint ,hint                                                       ;;
-;;           :columns ,columns                                                 ;;
-;;           :foreign-keys ,foreign-keys                                       ;;
-;;           :body-pre ,entry-sexp                                             ;;
-;;           :before-exit ,exit-sexp)                                          ;;
-;;          ,doc)                                                              ;;
-;;       (spacemacs//transient-state-adjust-bindings                           ;;
-;;        ',bindings ',remove-bindings ',add-bindings)))                       ;;
-;;     (when ,title                                                            ;;
-;;       (let ((guide (concat "[" (propertize "KEY" 'face 'hydra-face-blue)    ;;
-;;                            "] exits state  ["                               ;;
-;;                            (if ',foreign-keys                               ;;
-;;                                (propertize "KEY" 'face 'hydra-face-pink)    ;;
-;;                              (propertize "KEY" 'face 'hydra-face-red))      ;;
-;;                            "] will not exit")))                             ;;
-;;         ;; (add-face-text-property 0 (length guide) '(:height 0.9) t guide) ;;
-;;         (add-face-text-property 0 (length guide) 'italic t guide)           ;;
-;;         (setq ,hint-var                                                     ;;
-;;               (list 'concat                                                 ;;
-;;                     (when dotspacemacs-show-transient-state-title           ;;
-;;                       (concat                                               ;;
-;;                        (propertize                                          ;;
-;;                         ,title                                              ;;
-;;                         'face 'spacemacs-transient-state-title-face)        ;;
-;;                        (if ,hint-doc-p " " "\n"))) ,hint-var                ;;
-;;                        ',dyn-hint                                           ;;
-;;                        (when dotspacemacs-show-transient-state-color-guide  ;;
-;;                          (concat "\n" guide))))))                           ;;
-;;     ,@bindkeys)))))                                                         ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 (defun get-range-name ()
   (let* ((i 0)
-         ;; TODO withexcursion? with-variable-value to set the range, then
-         ;; query the value of ahs-overlay-list to display the total number of
-         ;; matches in the buffer. Is it performant on large buffers?
          (overlay-count (length ahs-overlay-list))
          (overlay (format "%s" (nth i ahs-overlay-list)))
          (current-overlay (format "%s" ahs-current-overlay))
@@ -79,7 +37,8 @@ _D_: nextdef
          (face (cond ((string= plighter "HS")  ahs-plugin-defalt-face)
                      ((string= plighter "HSA") ahs-plugin-whole-buffer-face)
                      ((string= plighter "HSD") ahs-plugin-bod-face)))
-        )
+         )
+
     (while (not (string= overlay current-overlay))
       (setq i (1+ i))
       (setq overlay (format "%s" (nth i ahs-overlay-list))))
