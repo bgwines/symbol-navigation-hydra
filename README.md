@@ -1,16 +1,16 @@
 # auto-highlight-symbol-hydra
 The Spacemacs Auto-Highlight Symbol Hydra, ported over to vanilla Emacs
 
+## Recommendations
+
+* set `ahs-case-fold-search` to `nil`
+
 ## TODO
 
-### `r` keeps resetting from "Buffer"
+### _r_ keeps resetting from "Buffer"
 
 * try `ahs-default-range'
 * since temporarily switching triggers some crazy latency
-
-### it's not case-sensitive
-
-hmmmm
 
 ### simultaneously display `overlay-count' for all three ranges
 
