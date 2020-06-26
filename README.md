@@ -16,8 +16,4 @@ hmmmm
 
 no idea how to do this
 
-### display legend for what the key colors mean
-
-easy
-
 ### Fix _d_, _D_, and _R_

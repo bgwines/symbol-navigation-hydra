@@ -2,13 +2,14 @@
 
 (defhydra hydra-auto-symbol-highlight (:hint nil)
   "
-%s(get-range-name)
+%s(header)
 ^Navigation^       ^Search^          ^AHS Hydra^        ^Magic^
------------------------------------------------------------------
+----------------------------------------------------------
 _n_: next          _f_: folder       _r_: range         _e_: iedit
 _N_/_p_: previous    _g_: project      _R_: reset         _s_: swoop
 _d_: prevdef       ^ ^               _q_: cancel
 _D_: nextdef
+%s(footer)
 "
   ("n" quick-ahs-forward)
   ("N" quick-ahs-backward)
@@ -24,7 +25,7 @@ _D_: nextdef
   ("g" (helm-projectile-ag-the-selection nil) :exit t)
   ("q" nil))
 
-(defun get-range-name ()
+(defun header ()
   (let* ((i 0)
          (overlay-count (length ahs-overlay-list))
          (overlay (format "%s" (nth i ahs-overlay-list)))
@@ -52,6 +53,16 @@ _D_: nextdef
        )
       )
     )
+  )
+
+(defun footer ()
+  (setq guide
+        (concat
+         "[" (propertize "KEY" 'face 'hydra-face-blue) "] exits state "
+          "[" (propertize "KEY" 'face 'hydra-face-red) "] will not exit"
+          ))
+  (add-face-text-property 0 (length guide) 'italic t guide)
+  guide
   )
 
 (defun ahs ()
