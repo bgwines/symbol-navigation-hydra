@@ -44,17 +44,15 @@ _D_: nextdef
       (setq i (1+ i))
       (setq overlay (format "%s" (nth i ahs-overlay-list))))
     (let* ((x/y (format "[%s/%s]" (- overlay-count i) overlay-count))
-           (hidden (if (< 0 (- overlay-count (nth 4 st))) "*" "")))
+           (hidden (if (< 0 (- overlay-count (nth 4 st))) "*" ""))
+           )
       (concat
-       (propertize (format " %s " plugin) 'face face)
-       (propertize (format " %s%s " x/y hidden) 'face
-                   `(:foreground "#ffffff" :background "#000000")
-                   )
+       (propertize "AHS Hydra" 'face `(:box t :weight bold)) "  "
+       (propertize (format " %s " plugin) 'face face) "  "
+       (format "%s%s " x/y hidden)
        )
       )
     )
-
-    (setq DEFUN t)
   )
 
 (defun footer ()
