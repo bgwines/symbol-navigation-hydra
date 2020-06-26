@@ -1,5 +1,7 @@
 ;;; ~/doom-config/ahs-hydra.el -*- lexical-binding: t; -*-
 
+(push 'haskell-mode ahs-modes)
+
 (defhydra hydra-auto-symbol-highlight (:hint nil)
   "
 %s(header)
