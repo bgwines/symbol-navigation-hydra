@@ -39,3 +39,4 @@ On most Emacs distributions, a simple `(require 'auto-highlight-symbol-hydra)` s
 * simultaneously display `overlay-count' for all three ranges
 * fix _d_, _D_, and _R_
 * formally list deps per https://www.gnu.org/software/emacs/manual/html_node/elisp/Simple-Packages.html
+* fix "Invalid face reference: t" (see messages buffer when opening hydra)

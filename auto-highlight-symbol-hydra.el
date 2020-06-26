@@ -119,11 +119,11 @@ _D_: nextdef       ^ ^               _q_: cancel
         x/y))
 
     (defun plugin-component (plugin)
-      (setq name (propertize (plugin-name plugin) 'face (plugin-color plugin)))
-
-      ;; `ahs-search-symbol'?
-      (setq locator (if (is-active plugin) (get-active-locator) "[?/?]"))
-      (concat name locator))
+      (let* ((name (propertize (plugin-name plugin) 'face (plugin-color plugin)))
+             (n-occurrences (get-n-occurences plugin))
+             (locator (if (is-active plugin) (get-active-locator)
+                        (format "[?/%s]" n-occurrences))))
+        (concat name locator)))
 
     (concat
      (propertize "AHS Hydra" 'face `(:box t :weight bold)) "  "
@@ -133,6 +133,59 @@ _D_: nextdef       ^ ^               _q_: cancel
      )
     )
   )
+
+;;;;;;;;;;;;;;
+
+(defun lighter-to-plugin-name (lighter)
+  (cond ((string= lighter "HS") "display-area")
+        ((string= lighter "HSA") "whole-buffer")
+        ((string= lighter "HSD") "beginning-of-defun"))
+  )
+
+(defun lighter-to-plugin (lighter)
+  (intern-soft (format "ahs-range-%s" (lighter-to-plugin-name lighter))))
+
+(defun my-ahs-prop (lighter prop &optional arg)
+  "Return value of the `PROP' property of the associated plugin."
+  (ahs-get-plugin-prop prop (lighter-to-plugin lighter) arg))
+
+(defun my-ahs-prepare-highlight (symbol plugin)
+  "Prepare for highlight."
+  (let ((before (my-ahs-prop plugin 'before-search symbol))
+        (beg (my-ahs-prop plugin 'start))
+        (end (my-ahs-prop plugin 'end)))
+    (cond ((equal before 'abort) nil)
+          ((not (numberp beg)) nil)
+          ((not (numberp end)) nil)
+          ((> beg end) nil)
+          (t (cons beg end)))))
+
+(defun my-ahs-search-symbol (symbol search-range)
+  "Search `SYMBOL' in `SEARCH-RANGE'."
+  (save-excursion
+    (let ((case-fold-search ahs-case-fold-search)
+          (regexp (concat "\\_<\\(" (regexp-quote symbol) "\\)\\_>" ))
+          (beg (car search-range))
+          (end (cdr search-range)))
+      (goto-char end)
+      (setq i 0)
+      (while (re-search-backward regexp beg t)
+        (setq i (+ i 1)))
+      i
+      )))
+
+(defun get-n-occurences (plugin)
+  (let* ((symbol (symbol-at-point))
+         (search-range (my-ahs-prepare-highlight symbol plugin)))
+    (if symbol
+        (if (consp search-range)
+            (my-ahs-search-symbol symbol search-range)
+          ;; couldn't determine the number of occurrences in the range
+          "?")
+      ;; cursor is not on a symbol, so there are 0 occurrences
+      0)))
+
+;;;;;;;;;;;;;;
 
 (defun footer ()
   (if ahs-hydra-display-legend
@@ -194,8 +247,10 @@ _D_: nextdef       ^ ^               _q_: cancel
   if current-folder is t, then searches the current folder. Otherwise, searches
   from the projectile directory root"
   (interactive)
-  (projectile-helm-ag current-folder (thing-at-point 'symbol))
+  (projectile-helm-ag current-folder (symbol-at-point))
 )
+
+(defun symbol-at-point () (thing-at-point 'symbol))
 
 (defun projectile-helm-ag (arg query)
   "Run helm-do-ag relative to the project root.  Or, with prefix arg ARG, relative to the current directory."
