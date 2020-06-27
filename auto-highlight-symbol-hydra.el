@@ -4,7 +4,7 @@
 
 ;; Author: Brett Wines <bgwines@cs.stanford.edu>
 ;; Keywords: highlight face match convenience hydra symbol
-;; URL: https://github.com/bgwines/auto-highlight-symbol-hydra/blob/master/ahs-hydra.el
+;; URL: https://github.com/bgwines/auto-highlight-symbol-hydra/blob/master/auto-highlight-symbol-hydra.el
 ;; Version: 0.0.4
 
 ;; This file is NOT part of GNU Emacs.
@@ -42,7 +42,7 @@
   :link `(url-link :tag "Download latest version"
                    ,(eval-when-compile (concat "https://github.com/bgwines/"
                                                "auto-highlight-symbol-hydra/"
-                                               "blob/master/ahs-hydra.el")))
+                                               "blob/master/auto-highlight-symbol-hydra.el")))
   :link `(url-link :tag "Information"
                    ,(eval-when-compile (concat
                                         "https://github.com/bgwines/"
@@ -215,4 +215,4 @@ _D_: nextdef       ^ ^               _q_: cancel
 
 (provide 'auto-highlight-symbol-hydra)
 
-;;; ahs-hydra.el ends here
+;;; auto-highlight-symbol-hydra.el ends here
