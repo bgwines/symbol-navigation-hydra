@@ -54,7 +54,8 @@
   :type 'boolean)
 
 
-(defhydra hydra-auto-symbol-highlight (:hint nil)
+;;;###autoload (autoload 'ahs-hydra/body "auto-highlight-symbol-hydra" nil nil)
+(defhydra ahs-hydra (:hint nil)
   "
 %s(header)
 ^Navigation^       ^Search^          ^AHS Hydra^        ^Magic^
@@ -153,7 +154,7 @@ _D_: nextdef       ^ ^               _q_: cancel
     (auto-highlight-symbol-mode)
     )
   (ahs-highlight-now)
-  (hydra-auto-symbol-highlight/body))
+  (ahs-hydra/body))
 
 (defun quick-ahs-forward ()
   "Go to the next occurrence of symbol under point with `auto-highlight-symbol'"
@@ -170,11 +171,11 @@ _D_: nextdef       ^ ^               _q_: cancel
   (if forward
       (progn
         (ahs-highlight-now)
-        (hydra-auto-symbol-highlight/body)
+        (ahs-hydra/body)
         (ahs-forward))
     (progn
       (ahs-highlight-now)
-      (hydra-auto-symbol-highlight/body)
+      (ahs-hydra/body)
       (ahs-backward))))
 
 (defun ahs-to-iedit ()
