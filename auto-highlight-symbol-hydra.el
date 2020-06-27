@@ -146,11 +146,9 @@ _D_: nextdef       ^ ^               _q_: cancel
     )
   )
 
-;;;###autoload
 (defun ahs ()
   "Highlight the symbol under point with `auto-highlight-symbol'."
   (interactive)
-  (require 'auto-highlight-symbol-hydra)
   (unless (bound-and-true-p ahs-mode-line)
     (auto-highlight-symbol-mode)
     )
