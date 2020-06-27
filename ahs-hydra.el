@@ -1,4 +1,40 @@
-;;; ~/doom-config/ahs-hydra.el -*- lexical-binding: t; -*-
+;;; ahs-hydra.el --- A hydra for `auto-highlight-symbol' -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2020  Brett Wines
+
+;; Author: Brett Wines <bgwines@cs.stanford.edu>
+;; Keywords: highlight face match convenience hydra symbol
+;; URL: https://github.com/bgwines/auto-highlight-symbol-hydra/blob/master/ahs-hydra.el
+;; Version: 0.0.1
+
+;; This file is NOT part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; This package was inspired by the Spacemacs AHS Transient State, which didn't
+;; exist for non-Spacemacs <gollum voice>Emacses</gollum voice>. It has a few
+;; changes, however:
+;;     * simultaneous display of all three overlay counts
+;;     * a variable for hiding the legend
+;;     * a variable for hiding the `DISPLAY' range since it doesn't seem useful
+;;     * no support for the _b_ (`buffer') hydra head since it doesn't seem useful
+;;
+;; Happy coding! ^_^
+
+;;; Code:
 
 (defgroup auto-highlight-symbol-hydra nil
   "Automatic highlighting current symbol hydra"
@@ -50,11 +86,11 @@ _D_: nextdef       ^ ^               _q_: cancel
          (st (ahs-stat))
          (plighter (ahs-current-plugin-prop 'lighter))
          (ahs-plugin-defalt-face-inactive
-          '((t (:foreground "Black" :background "#3a2303"))))
+          '((t (:foreground "#eeeeee" :background "#3a2303"))))
          (ahs-plugin-whole-buffer-face-inactive
-          '((t (:foreground "Black" :background "#182906"))))
+          '((t (:foreground "#eeeeee" :background "#182906"))))
          (ahs-plugin-bod-face-inactive
-          '((t (:foreground "Black" :background "#0b2d5c"))))
+          '((t (:foreground "#eeeeee" :background "#0b2d5c"))))
          )
 
     (defun plugin-name (plugin)
@@ -83,8 +119,6 @@ _D_: nextdef       ^ ^               _q_: cancel
 
     (defun plugin-component (plugin)
       (setq name (propertize (plugin-name plugin) 'face (plugin-color plugin)))
-      (if (is-active plugin)
-          (add-face-text-property 0 (length name) 'italic t name) nil)
 
       ;; `ahs-search-symbol'?
       (setq locator (if (is-active plugin) (get-active-locator) "[?/?]"))
@@ -179,3 +213,7 @@ _D_: nextdef       ^ ^               _q_: cancel
         )
     (helm-do-ag (projectile-project-root) nil query)
     ))
+
+(provide 'ahs-hydra)
+
+;;; ahs-hydra.el ends here

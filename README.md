@@ -1,5 +1,21 @@
 # auto-highlight-symbol-hydra
-The Spacemacs Auto-Highlight Symbol Hydra, ported over to vanilla Emacs
+
+This package was inspired by the Spacemacs AHS Transient State, which didn't
+exist for non-Spacemacs Emacses. It has a few changes, however:
+
+* simultaneous display of all three overlay counts
+* a variable for hiding the legend
+* a variable for hiding the `DISPLAY` range since it doesn't seem useful
+* no support for the _b_ (`buffer`) hydra head since it doesn't seem useful
+
+
+## Requirements
+
+``` elisp
+(package! auto-highlight-symbol)
+(package! iedit)
+(package! symbol-overlay)
+```
 
 ## Recommendations
 
@@ -13,22 +29,7 @@ The Spacemacs Auto-Highlight Symbol Hydra, ported over to vanilla Emacs
 
 ## TODO
 
-### do the `defconst`stuff or whatever to actually make it a package
-
-how?
-
-### hide `DISPLAY` range-mode by default
-
-expose a variable to enable it
-
-is tehre something analogous to save-excursion for an existing variable? There's probably some pattern to support the customization f this in emacs and I should just like use it my guy
-
-### only rerender what needs to change
-
-is this even possible?
-
-### simultaneously display `overlay-count' for all three ranges
-
-mostly done
-
-### Fix _d_, _D_, and _R_
+* hide `DISPLAY` range-mode by default (expose a variable to enable it)
+* only rerender what needs to change (is this even possible?)
+* simultaneously display `overlay-count' for all three ranges
+* fix _d_, _D_, and _R_
