@@ -5,7 +5,7 @@
 ;; Author: Brett Wines <bgwines@cs.stanford.edu>
 ;; Keywords: highlight face match convenience hydra symbol
 ;; URL: https://github.com/bgwines/auto-highlight-symbol-hydra/blob/master/ahs-hydra.el
-;; Version: 0.0.2
+;; Version: 0.0.3
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -78,7 +78,6 @@ _D_: nextdef       ^ ^               _q_: cancel
   ("g" (helm-projectile-ag-the-selection nil) :exit t)
   ("q" nil))
 
-;;;###autoload
 (defun header ()
   (let* ((i 0)
          (overlay-count (length ahs-overlay-list))
@@ -214,6 +213,6 @@ _D_: nextdef       ^ ^               _q_: cancel
     (helm-do-ag (projectile-project-root) nil query)
     ))
 
-(provide 'ahs-hydra)
+(provide 'auto-highlight-symbol-hydra)
 
 ;;; ahs-hydra.el ends here
