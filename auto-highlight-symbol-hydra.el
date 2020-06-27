@@ -146,6 +146,7 @@ _D_: nextdef       ^ ^               _q_: cancel
     )
   )
 
+;;;###autoload
 (defun ahs ()
   "Highlight the symbol under point with `auto-highlight-symbol'."
   (interactive)
