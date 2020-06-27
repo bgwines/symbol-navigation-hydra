@@ -20,6 +20,7 @@ exist for non-Spacemacs Emacses. It has a few changes, however:
 ## Recommendations
 
 ```elisp
+(global-set-key (kbd "something") 'ahs)
 (setq-default ahs-case-fold-search nil)
 (setq-default ahs-default-range 'ahs-range-whole-buffer)
 (setq-default ahs-hydra-display-legend nil)
@@ -33,3 +34,4 @@ exist for non-Spacemacs Emacses. It has a few changes, however:
 * only rerender what needs to change (is this even possible?)
 * simultaneously display `overlay-count' for all three ranges
 * fix _d_, _D_, and _R_
+* formally list deps per https://www.gnu.org/software/emacs/manual/html_node/elisp/Simple-Packages.html
