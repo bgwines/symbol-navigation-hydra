@@ -1,6 +1,22 @@
 ;;; ~/doom-config/ahs-hydra.el -*- lexical-binding: t; -*-
 
-(push 'haskell-mode ahs-modes)
+(defgroup auto-highlight-symbol-hydra nil
+  "Automatic highlighting current symbol hydra"
+  :group 'convenience
+  :link `(url-link :tag "Download latest version"
+                   ,(eval-when-compile (concat "https://github.com/bgwines/"
+                                               "auto-highlight-symbol-hydra/"
+                                               "blob/master/ahs-hydra.el")))
+  :link `(url-link :tag "Information"
+                   ,(eval-when-compile (concat
+                                        "https://github.com/bgwines/"
+                                        "auto-highlight-symbol-hydra"))))
+
+(defcustom ahs-hydra-display-legend nil
+  "*Non-nil means suppress the KEY legend."
+  :group 'auto-highlight-symbol-hydra
+  :type 'boolean)
+
 
 (defhydra hydra-auto-symbol-highlight (:hint nil)
   "
@@ -11,8 +27,7 @@ _n_: next          _f_: folder       _r_: range         _e_: iedit
 _N_/_p_: previous    _g_: project      _R_: reset         _s_: swoop
 _d_: prevdef       ^ ^               _z_: recenter
 _D_: nextdef       ^ ^               _q_: cancel
-%s(footer)
-"
+%s(footer)"
   ("n" quick-ahs-forward)
   ("N" quick-ahs-backward)
   ("p" quick-ahs-backward)
@@ -85,13 +100,16 @@ _D_: nextdef       ^ ^               _q_: cancel
   )
 
 (defun footer ()
-  (setq guide
-        (concat
-         "[" (propertize "KEY" 'face 'hydra-face-blue) "] exits state "
-          "[" (propertize "KEY" 'face 'hydra-face-red) "] will not exit"
-          ))
-  (add-face-text-property 0 (length guide) 'italic t guide)
-  guide
+  (if ahs-hydra-display-legend
+      (progn(setq guide
+            (concat
+             "[" (propertize "KEY" 'face 'hydra-face-blue) "] exits state "
+             "[" (propertize "KEY" 'face 'hydra-face-red) "] will not exit"
+             ))
+            (add-face-text-property 0 (length guide) 'italic t guide)
+            guide)
+    ""
+    )
   )
 
 (defun ahs ()
