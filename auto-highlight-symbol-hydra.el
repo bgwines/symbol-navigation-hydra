@@ -79,6 +79,7 @@ _D_: nextdef       ^ ^               _q_: cancel
   ("g" (helm-projectile-ag-the-selection nil) :exit t)
   ("q" nil))
 
+;;;###autoload
 (defun header ()
   (let* ((i 0)
          (overlay-count (length ahs-overlay-list))
@@ -134,6 +135,7 @@ _D_: nextdef       ^ ^               _q_: cancel
     )
   )
 
+;;;###autoload
 (defun footer ()
   (if ahs-hydra-display-legend
       (progn(setq guide
@@ -157,16 +159,19 @@ _D_: nextdef       ^ ^               _q_: cancel
   (ahs-highlight-now)
   (ahs-hydra/body))
 
+;;;###autoload
 (defun quick-ahs-forward ()
   "Go to the next occurrence of symbol under point with `auto-highlight-symbol'"
   (interactive)
   (quick-ahs-move t))
 
+;;;###autoload
 (defun quick-ahs-backward ()
   "Go to the previous occurrence of symbol under point with `auto-highlight-symbol'"
   (interactive)
   (quick-ahs-move nil))
 
+;;;###autoload
 (defun quick-ahs-move (forward)
   "Go to the next occurrence of symbol under point with `auto-highlight-symbol'"
   (if forward
@@ -179,6 +184,7 @@ _D_: nextdef       ^ ^               _q_: cancel
       (ahs-hydra/body)
       (ahs-backward))))
 
+;;;###autoload
 (defun ahs-to-iedit ()
   "Trigger iedit from ahs."
   (interactive)
@@ -188,6 +194,7 @@ _D_: nextdef       ^ ^               _q_: cancel
                            (ahs-current-plugin-prop 'end)))
    (ahs-edit-mode t))
 
+;;;###autoload
 (defun helm-projectile-ag-the-selection (current-folder)
   "helm-projectile-ag the selection
 
@@ -197,6 +204,7 @@ _D_: nextdef       ^ ^               _q_: cancel
   (projectile-helm-ag current-folder (thing-at-point 'symbol))
 )
 
+;;;###autoload
 (defun projectile-helm-ag (arg query)
   "Run helm-do-ag relative to the project root.  Or, with prefix arg ARG, relative to the current directory."
   (interactive "P")
