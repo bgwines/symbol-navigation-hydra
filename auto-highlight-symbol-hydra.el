@@ -79,88 +79,63 @@ _D_: nextdef       ^ ^               _q_: cancel
   ("g" (helm-projectile-ag-the-selection nil) :exit t)
   ("q" nil))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; displaying the hydra ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun header ()
   (let* ((i 0)
          (overlay-count (length ahs-overlay-list))
          (overlay (format "%s" (nth i ahs-overlay-list)))
          (current-overlay (format "%s" ahs-current-overlay))
-         (st (ahs-stat))
-         (plighter (ahs-current-plugin-prop 'lighter))
-         (ahs-plugin-defalt-face-inactive
-          '((t (:foreground "#eeeeee" :background "#3a2303"))))
-         (ahs-plugin-whole-buffer-face-inactive
-          '((t (:foreground "#eeeeee" :background "#182906"))))
-         (ahs-plugin-bod-face-inactive
-          '((t (:foreground "#eeeeee" :background "#0b2d5c"))))
+         (active-lighter (ahs-current-plugin-prop 'lighter))
          )
 
-    (defun plugin-name (plugin)
-      (cond ((string= plugin "HS")  "Display")
-            ((string= plugin "HSA") "Buffer")
-            ((string= plugin "HSD") "Function")))
-
     (defun is-active (plugin)
-      (string= plugin plighter))
+      (string= (ahs-get-plugin-prop 'lighter plugin) active-lighter))
+
+    (defun darken-plugin-face (face)
+        (cond ((eq face ahs-plugin-defalt-face) '((t (:foreground "#eeeeee" :background "#3a2303"))))
+              ((eq face ahs-plugin-whole-buffer-face) '((t (:foreground "#eeeeee" :background "#182906"))))
+              ((eq face ahs-plugin-bod-face) '((t (:foreground "#eeeeee" :background "#0b2d5c"))))))
 
     (defun plugin-color (plugin)
-      (if (is-active plugin)
-          (cond ((string= plugin "HS")  ahs-plugin-defalt-face)
-                ((string= plugin "HSA") ahs-plugin-whole-buffer-face)
-                ((string= plugin "HSD") ahs-plugin-bod-face))
-        (cond ((string= plugin "HS")  ahs-plugin-defalt-face-inactive)
-              ((string= plugin "HSA") ahs-plugin-whole-buffer-face-inactive)
-              ((string= plugin "HSD") ahs-plugin-bod-face-inactive))))
+      (let ((face (ahs-get-plugin-prop 'face plugin)))
+        (if (is-active plugin) face (darken-plugin-face face))))
 
-    (defun get-active-locator ()
+    (defun get-active-x/y ()
       (while (not (string= overlay current-overlay))
         (setq i (1+ i))
         (setq overlay (format "%s" (nth i ahs-overlay-list))))
-      (let* ((x/y (format "[%s/%s]" (- overlay-count i) overlay-count)))
-        x/y))
+      (format "[%s/%s]" (- overlay-count i) overlay-count))
 
     (defun plugin-component (plugin)
-      (let* ((name (propertize (plugin-name plugin) 'face (plugin-color plugin)))
-             (n-occurrences (get-n-occurences plugin))
-             (locator (if (is-active plugin) (get-active-locator)
-                        (format "[?/%s]" n-occurrences))))
+      (let* ((name (propertize (ahs-get-plugin-prop 'name plugin)
+                               'face (plugin-color plugin)))
+             (locator (if (is-active plugin) (get-active-x/y)
+                        (format "[?/%s]" (get-n-occurences plugin)))))
         (concat name locator)))
 
     (concat
      (propertize "AHS Hydra" 'face `(:box t :weight bold)) "  "
-     (plugin-component "HSD") "  "
-     (plugin-component "HSA") "  "
-     (plugin-component "HS")
-     )
-    )
+     (plugin-component 'ahs-range-beginning-of-defun) "  "
+     (plugin-component 'ahs-range-whole-buffer) "  "
+     (plugin-component 'ahs-range-display)
+     ))
   )
 
-;;;;;;;;;;;;;;
-
-(defun lighter-to-plugin-name (lighter)
-  (cond ((string= lighter "HS") "display-area")
-        ((string= lighter "HSA") "whole-buffer")
-        ((string= lighter "HSD") "beginning-of-defun"))
-  )
-
-(defun lighter-to-plugin (lighter)
-  (intern-soft (format "ahs-range-%s" (lighter-to-plugin-name lighter))))
-
-(defun my-ahs-prop (lighter prop &optional arg)
-  "Return value of the `PROP' property of the associated plugin."
-  (ahs-get-plugin-prop prop (lighter-to-plugin lighter) arg))
-
-(defun my-ahs-prepare-highlight (symbol plugin)
+(defun get-plugin-search-range (symbol plugin)
   "Prepare for highlight."
-  (let ((before (my-ahs-prop plugin 'before-search symbol))
-        (beg (my-ahs-prop plugin 'start))
-        (end (my-ahs-prop plugin 'end)))
+  (let ((before (ahs-get-plugin-prop 'before-search plugin symbol))
+        (beg (ahs-get-plugin-prop 'start plugin))
+        (end (ahs-get-plugin-prop 'end plugin)))
     (cond ((equal before 'abort) nil)
           ((not (numberp beg)) nil)
           ((not (numberp end)) nil)
           ((> beg end) nil)
           (t (cons beg end)))))
 
-(defun my-ahs-search-symbol (symbol search-range)
+(defun get-n-occurrences-within-range (symbol search-range)
   "Search `SYMBOL' in `SEARCH-RANGE'."
   (save-excursion
     (let ((case-fold-search ahs-case-fold-search)
@@ -176,16 +151,12 @@ _D_: nextdef       ^ ^               _q_: cancel
 
 (defun get-n-occurences (plugin)
   (let* ((symbol (symbol-at-point))
-         (search-range (my-ahs-prepare-highlight symbol plugin)))
+         (search-range (get-plugin-search-range symbol plugin)))
     (if symbol
         (if (consp search-range)
-            (my-ahs-search-symbol symbol search-range)
-          ;; couldn't determine the number of occurrences in the range
-          "?")
-      ;; cursor is not on a symbol, so there are 0 occurrences
-      0)))
-
-;;;;;;;;;;;;;;
+            (get-n-occurrences-within-range symbol search-range)
+          "?") ;; couldn't determine the number of occurrences in the range
+      0))) ;; cursor is not on a symbol, so there are 0 occurrences
 
 (defun footer ()
   (if ahs-hydra-display-legend
@@ -209,6 +180,10 @@ _D_: nextdef       ^ ^               _q_: cancel
     )
   (ahs-highlight-now)
   (ahs-hydra/body))
+
+;;;;;;;;;;;
+;; heads ;;
+;;;;;;;;;;;
 
 (defun quick-ahs-forward ()
   "Go to the next occurrence of symbol under point with `auto-highlight-symbol'"
