@@ -110,11 +110,11 @@ _D_: nextdef       ^ ^               _q_: cancel
       (format "[%s/%s]" (- overlay-count i) overlay-count))
 
     (defun plugin-component (plugin)
-      (let* ((name (propertize (ahs-get-plugin-prop 'name plugin)
+      (let ((name (propertize (ahs-get-plugin-prop 'name plugin)
                                'face (plugin-color plugin)))
-             (locator (if (is-active plugin) (get-active-x/y)
-                        (format "[?/%s]" (get-n-occurences plugin)))))
-        (concat name locator)))
+             (x/y (if (is-active plugin) (get-active-x/y) (get-plugin-x/y plugin)))
+             )
+        (concat name x/y)))
 
     (concat
      (propertize "AHS Hydra" 'face `(:box t :weight bold)) "  "
@@ -150,14 +150,33 @@ _D_: nextdef       ^ ^               _q_: cancel
                       (match-end 1)) occurrences))
       occurrences)))
 
-(defun get-n-occurences (plugin)
+(defun get-occurrences (plugin)
   (let* ((symbol (symbol-at-point))
          (search-range (get-plugin-search-range symbol plugin)))
     (if symbol
         (if (consp search-range)
-            (length (get-occurrences-within-range symbol search-range))
-          "?") ;; couldn't determine the number of occurrences in the range
-      0))) ;; cursor is not on a symbol, so there are 0 occurrences
+            (get-occurrences-within-range symbol search-range)
+          nil) ;; couldn't determine the number of occurrences in the range
+      nil))) ;; cursor is not on a symbol, so there are 0 occurrences
+
+(defun get-occurrence-index (plugin occurrences)
+  (let* ((i 0)
+         (current-overlay (format "%s"
+                                  (list (overlay-start ahs-current-overlay) (overlay-end ahs-current-overlay))))
+         (overlay (format "%s" (nth i occurrences))))
+    (while (and (< i (length occurrences))
+                (not (string= overlay current-overlay)))
+        (setq i (1+ i))
+        (setq overlay (format "%s" (nth i occurrences))))
+      i
+  ))
+
+(defun get-plugin-x/y (plugin)
+  (let ((occurrences (get-occurrences plugin)))
+    (format "[%s/%s]"
+            (+ 1 (get-occurrence-index plugin occurrences))
+            (length occurrences)))
+  )
 
 (defun footer ()
   (if ahs-hydra-display-legend
