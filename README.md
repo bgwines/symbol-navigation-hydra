@@ -41,6 +41,7 @@ for now, in Doom:
 
 ## TODO
 
+* bug: the `DISPLAY` overlay count is sometimes larger than the other counts
 * MC next/prev selection (normal MC is not symbol-aware)
     * or just make my normal MC symbol-aware? Maybe there's a variable
 * don't enable AHS mode? Some people don't want that

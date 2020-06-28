@@ -135,26 +135,27 @@ _D_: nextdef       ^ ^               _q_: cancel
           ((> beg end) nil)
           (t (cons beg end)))))
 
-(defun get-n-occurrences-within-range (symbol search-range)
+(defun get-occurrences-within-range (symbol search-range)
   "Search `SYMBOL' in `SEARCH-RANGE'."
   (save-excursion
     (let ((case-fold-search ahs-case-fold-search)
           (regexp (concat "\\_<\\(" (regexp-quote symbol) "\\)\\_>" ))
           (beg (car search-range))
-          (end (cdr search-range)))
+          (end (cdr search-range))
+          (occurrences 'nil))
       (goto-char end)
       (setq i 0)
       (while (re-search-backward regexp beg t)
-        (setq i (+ i 1)))
-      i
-      )))
+          (push (list (match-beginning 1)
+                      (match-end 1)) occurrences))
+      occurrences)))
 
 (defun get-n-occurences (plugin)
   (let* ((symbol (symbol-at-point))
          (search-range (get-plugin-search-range symbol plugin)))
     (if symbol
         (if (consp search-range)
-            (get-n-occurrences-within-range symbol search-range)
+            (length (get-occurrences-within-range symbol search-range))
           "?") ;; couldn't determine the number of occurrences in the range
       0))) ;; cursor is not on a symbol, so there are 0 occurrences
 
