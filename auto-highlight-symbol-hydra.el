@@ -54,7 +54,7 @@
   :type 'boolean)
 
 
-;;;###autoload (autoload 'ahs-hydra/body "auto-highlight-symbol-hydra" nil nil)
+;;;###autoload (autoload 'ahs-hydra/body "auto-highlight-symbol-hydra.el" nil nil)
 (defhydra ahs-hydra (:hint nil)
   "
 %s(header)
