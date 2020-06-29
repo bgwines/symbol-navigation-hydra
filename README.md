@@ -47,4 +47,3 @@ for now, in Doom:
 * hide `DISPLAY` range-mode by default (expose a variable to enable it)
 * fix _d_, _D_, and _R_
 * formally list deps per https://www.gnu.org/software/emacs/manual/html_node/elisp/Simple-Packages.html
-* fix "Invalid face reference: t" (see messages buffer when opening hydra)

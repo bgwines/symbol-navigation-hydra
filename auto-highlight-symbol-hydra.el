@@ -53,6 +53,23 @@
   :group 'auto-highlight-symbol-hydra
   :type 'boolean)
 
+(defface ahs-plugin-display-face-dim
+  '((t (:foreground "#eeeeee" :background "#3a2303")))
+  "Dimmer version of the Display face."
+  :group 'auto-highlight-symbol-hydra)
+(defvar ahs-plugin-display-face-dim 'ahs-plugin-display-face-dim)
+
+(defface ahs-plugin-whole-buffer-face-dim
+  '((t (:foreground "#eeeeee" :background "#182906")))
+  "Dimmer version of the Buffer face."
+  :group 'auto-highlight-symbol-hydra)
+(defvar ahs-plugin-whole-buffer-face-dim 'ahs-plugin-whole-buffer-face-dim)
+
+(defface ahs-plugin-beginning-of-defun-face-dim
+  '((t (:foreground "#eeeeee" :background "#0b2d5c")))
+  "Dimmer version of the Function face."
+  :group 'auto-highlight-symbol-hydra)
+(defvar ahs-plugin-beginning-of-defun-face-dim 'ahs-plugin-beginning-of-defun-face-dim)
 
 ;;;###autoload (autoload 'ahs-hydra/body "auto-highlight-symbol-hydra.el" nil nil)
 (defhydra ahs-hydra (:hint nil)
@@ -77,7 +94,7 @@ _D_: nextdef       ^ ^               _q_: cancel
   ("s" (call-interactively 'helm-swoop) :exit t)
   ("f" (helm-projectile-ag-the-selection t) :exit t)
   ("g" (helm-projectile-ag-the-selection nil) :exit t)
-  ("q" nil))
+  ("q" nil :exit t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; displaying the hydra ;;
@@ -94,9 +111,9 @@ _D_: nextdef       ^ ^               _q_: cancel
       (string= (ahs-get-plugin-prop 'lighter plugin) (ahs-current-plugin-prop 'lighter)))
 
     (defun darken-plugin-face (face)
-        (cond ((eq face ahs-plugin-defalt-face) '((t (:foreground "#eeeeee" :background "#3a2303"))))
-              ((eq face ahs-plugin-whole-buffer-face) '((t (:foreground "#eeeeee" :background "#182906"))))
-              ((eq face ahs-plugin-bod-face) '((t (:foreground "#eeeeee" :background "#0b2d5c"))))))
+        (cond ((eq face ahs-plugin-defalt-face) 'ahs-plugin-display-face-dim)
+              ((eq face ahs-plugin-whole-buffer-face) 'ahs-plugin-whole-buffer-face-dim)
+              ((eq face ahs-plugin-bod-face) 'ahs-plugin-beginning-of-defun-face-dim)))
 
     (defun plugin-color (plugin)
       (let ((face (ahs-get-plugin-prop 'face plugin)))
