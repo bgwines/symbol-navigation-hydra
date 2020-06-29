@@ -54,14 +54,15 @@ You may also wish to customize some other variables from the [Auto Highlight Sym
 
 ## TODO
 
+* p0
+    * disable AHS idle highlighting
 * p1
-    * main buffer flickers during _p_ and _n_
-    * don't enable AHS mode? Some people don't want that
+    * main buffer flickers during _p_ and _n_ (is this even fixable?)
     * hide `DISPLAY` range-mode by default (expose a variable to enable it)
     * fix _d_, _D_, and _R_
-    * formally list deps per https://www.gnu.org/software/emacs/manual/html_node/elisp/Simple-Packages.html
+    * document code
 * p2
-    * MC next/prev selection (normal MC is not symbol-aware) (or just make my normal MC symbol-aware? Maybe there's a variable)
+    * support MC next/prev selection? (normal MC is not symbol-aware) (or just make my normal MC symbol-aware? Maybe there's a variable)
     * support _b_ (buffer) search
 
 ## Feedback

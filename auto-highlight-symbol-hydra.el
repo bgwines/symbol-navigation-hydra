@@ -4,8 +4,9 @@
 
 ;; Author: Brett Wines <bgwines@cs.stanford.edu>
 ;; Keywords: highlight face match convenience hydra symbol
-;; URL: https://github.com/bgwines/auto-highlight-symbol-hydra/blob/master/auto-highlight-symbol-hydra.el
-;; Version: 0.0.4
+;; Package-Requires: (auto-highlight-symbol iedit)
+;; URL: https://github.com/bgwines/auto-highlight-symbol-hydra
+;; Version: 0.0.5
 
 ;; This file is NOT part of GNU Emacs.
 
