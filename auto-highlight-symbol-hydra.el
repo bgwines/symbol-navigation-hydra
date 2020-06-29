@@ -58,7 +58,7 @@
 (defhydra ahs-hydra (:hint nil)
   "
 %s(header)
-^Navigation^       ^Search^          ^AHS Hydra^        ^Magic^
+^Navigation^       ^Search^          ^AHS Hydra^        ^Multi^
 ----------------------------------------------------------
 _n_: next          _f_: folder       _r_: range         _e_: iedit
 _N_/_p_: previous    _g_: project      _R_: reset         _s_: swoop
@@ -88,11 +88,10 @@ _D_: nextdef       ^ ^               _q_: cancel
          (overlay-count (length ahs-overlay-list))
          (overlay (format "%s" (nth i ahs-overlay-list)))
          (current-overlay (format "%s" ahs-current-overlay))
-         (active-lighter (ahs-current-plugin-prop 'lighter))
          )
 
     (defun is-active (plugin)
-      (string= (ahs-get-plugin-prop 'lighter plugin) active-lighter))
+      (string= (ahs-get-plugin-prop 'lighter plugin) (ahs-current-plugin-prop 'lighter)))
 
     (defun darken-plugin-face (face)
         (cond ((eq face ahs-plugin-defalt-face) '((t (:foreground "#eeeeee" :background "#3a2303"))))
@@ -110,7 +109,7 @@ _D_: nextdef       ^ ^               _q_: cancel
       (format "[%s/%s]" (- overlay-count i) overlay-count))
 
     (defun plugin-component (plugin)
-      (let ((name (propertize (ahs-get-plugin-prop 'name plugin)
+      (let ((name (propertize (get-plugin-display-name plugin)
                                'face (plugin-color plugin)))
              (x/y (if (is-active plugin) (get-active-x/y) (get-plugin-x/y plugin)))
              )
@@ -123,6 +122,12 @@ _D_: nextdef       ^ ^               _q_: cancel
      (plugin-component 'ahs-range-display)
      ))
   )
+
+(defun get-plugin-display-name (plugin)
+  (cond
+   ((eq plugin 'ahs-range-beginning-of-defun) "Function")
+   ((eq plugin 'ahs-range-whole-buffer) "Buffer")
+   ((eq plugin 'ahs-range-display) "Display")))
 
 (defun get-plugin-search-range (symbol plugin)
   "Prepare for highlight."
@@ -144,7 +149,6 @@ _D_: nextdef       ^ ^               _q_: cancel
           (end (cdr search-range))
           (occurrences 'nil))
       (goto-char end)
-      (setq i 0)
       (while (re-search-backward regexp beg t)
           (push (list (match-beginning 1)
                       (match-end 1)) occurrences))
@@ -161,8 +165,12 @@ _D_: nextdef       ^ ^               _q_: cancel
 
 (defun get-occurrence-index (plugin occurrences)
   (let* ((i 0)
-         (current-overlay (format "%s"
-                                  (list (overlay-start ahs-current-overlay) (overlay-end ahs-current-overlay))))
+         (current-overlay (if ahs-current-overlay
+                              (format "%s"
+                                      (list
+                                       (overlay-start ahs-current-overlay)
+                                       (overlay-end ahs-current-overlay)))
+                            nil))
          (overlay (format "%s" (nth i occurrences))))
     (while (and (< i (length occurrences))
                 (not (string= overlay current-overlay)))
@@ -172,11 +180,12 @@ _D_: nextdef       ^ ^               _q_: cancel
   ))
 
 (defun get-plugin-x/y (plugin)
-  (let ((occurrences (get-occurrences plugin)))
-    (format "[%s/%s]"
-            (+ 1 (get-occurrence-index plugin occurrences))
-            (length occurrences)))
-  )
+  (let* ((occurrences (get-occurrences plugin))
+         (occurrence-index
+          (if occurrences
+              (+ 1 (get-occurrence-index plugin occurrences))
+            0))) ;; if 0 occurrences, don't increment 0
+    (format "[%s/%s]" occurrence-index (length occurrences))))
 
 (defun footer ()
   (if ahs-hydra-display-legend

@@ -46,8 +46,6 @@ for now, in Doom:
     * or just make my normal MC symbol-aware? Maybe there's a variable
 * don't enable AHS mode? Some people don't want that
 * hide `DISPLAY` range-mode by default (expose a variable to enable it)
-* only rerender what needs to change (is this even possible?)
-* simultaneously display `overlay-count' for all three ranges
 * fix _d_, _D_, and _R_
 * formally list deps per https://www.gnu.org/software/emacs/manual/html_node/elisp/Simple-Packages.html
 * fix "Invalid face reference: t" (see messages buffer when opening hydra)
