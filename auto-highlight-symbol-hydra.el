@@ -38,7 +38,7 @@
 ;;; Code:
 
 (defgroup auto-highlight-symbol-hydra nil
-  "Automatic highlighting current symbol hydra"
+  "The Auto-Highlight Symbol Hydra"
   :group 'convenience
   :link `(url-link :tag "Download latest version"
                    ,(eval-when-compile (concat "https://github.com/bgwines/"
@@ -83,18 +83,18 @@ _N_/_p_: previous    _g_: project      _R_: reset         _s_: swoop
 _d_: prevdef       ^ ^               _z_: recenter
 _D_: nextdef       ^ ^               _q_: cancel
 %s(footer)"
-  ("n" quick-ahs-forward)
-  ("N" quick-ahs-backward)
-  ("p" quick-ahs-backward)
+  ("n" move-point-one-symbol-forward)
+  ("N" move-point-one-symbol-backward)
+  ("p" move-point-one-symbol-backward)
   ("d" ahs-forward-definition)
   ("D" ahs-backward-definition)
   ("r" ahs-change-range)
   ("R" ahs-back-to-start)
   ("z" (progn (recenter-top-bottom) (ahs)))
-  ("e" ahs-to-iedit :exit t)
+  ("e" engage-iedit :exit t)
   ("s" (call-interactively 'helm-swoop) :exit t)
-  ("f" (helm-projectile-ag-the-selection t) :exit t)
-  ("g" (helm-projectile-ag-the-selection nil) :exit t)
+  ("f" (projectile-helm-ag t (symbol-at-point)) :exit t)
+  ("g" (projectile-helm-ag nil (symbol-at-point)) :exit t)
   ("q" nil :exit t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -102,6 +102,11 @@ _D_: nextdef       ^ ^               _q_: cancel
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun header ()
+  "This is the user-visible header at the top of the hydra.
+
+It is comprised of
+    * The title of the hydra
+    * The three plugins, with the inactive ones dimmed, all with overlay counts"
   (let* ((i 0)
          (overlay-count (length ahs-overlay-list))
          (overlay (format "%s" (nth i ahs-overlay-list)))
@@ -142,13 +147,21 @@ _D_: nextdef       ^ ^               _q_: cancel
   )
 
 (defun get-plugin-display-name (plugin)
+  "Get the user-visible name for `PLUGIN'."
   (cond
    ((eq plugin 'ahs-range-beginning-of-defun) "Function")
    ((eq plugin 'ahs-range-whole-buffer) "Buffer")
    ((eq plugin 'ahs-range-display) "Display")))
 
 (defun get-plugin-search-range (symbol plugin)
-  "Prepare for highlight."
+  "Compute the pair of integers within which to search for `SYMBOL'.
+
+The range is dependent on the user-selected range, which is `PLUGIN'.
+
+`PLUGIN' should be one of
+  'ahs-range-beginning-of-defun
+  'ahs-range-whole-buffer
+  'ahs-range-display"
   (let ((before (ahs-get-plugin-prop 'before-search plugin symbol))
         (beg (ahs-get-plugin-prop 'start plugin))
         (end (ahs-get-plugin-prop 'end plugin)))
@@ -159,7 +172,9 @@ _D_: nextdef       ^ ^               _q_: cancel
           (t (cons beg end)))))
 
 (defun get-occurrences-within-range (symbol search-range)
-  "Search `SYMBOL' in `SEARCH-RANGE'."
+  "Search for `SYMBOL' in `SEARCH-RANGE'.
+
+`SEARCH-RANGE' should be a pair of integers representing indexes of characters."
   (save-excursion
     (let ((case-fold-search ahs-case-fold-search)
           (regexp (concat "\\_<\\(" (regexp-quote symbol) "\\)\\_>" ))
@@ -177,6 +192,22 @@ _D_: nextdef       ^ ^               _q_: cancel
       occurrences)))
 
 (defun get-occurrences (plugin)
+  "Look up all instances of the currently focused symbol.
+
+These will be instances only within the range specified by
+`PLUGIN'. Instances of the symbol in comments or as substrings
+are ignored. There are a number of other parameters to this
+search (e.g. case-sensitivity); see the auto-highlight-symbol
+package.
+
+`PLUGIN' should be one of
+    'ahs-range-beginning-of-defun
+    'ahs-range-whole-buffer
+    'ahs-range-display
+
+The returnvalue is a list of pairs of integers. The integers are indexes
+of characters, as in
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
   (let* ((symbol (symbol-at-point))
          (search-range (get-plugin-search-range symbol plugin)))
     (if symbol
@@ -185,7 +216,23 @@ _D_: nextdef       ^ ^               _q_: cancel
           nil) ;; couldn't determine the number of occurrences in the range
       nil))) ;; cursor is not on a symbol, so there are 0 occurrences
 
-(defun get-occurrence-index (plugin occurrences)
+(defun get-occurrence-index (occurrences)
+  "Compute the index of the occurrence of the currently focused symbol.
+
+For example, for the code in this function, the string
+\"occurrences\" appears a few (three) times. If the cursor is
+on the first of these, this function returns 0, (not 1, since
+it is an index).
+
+`PLUGIN' should be one of
+    'ahs-range-beginning-of-defun
+    'ahs-range-whole-buffer
+    'ahs-range-display
+
+`OCCURRENCES' should be the list of all occurrences of the currently focused
+symbol. It should be a list of pairs of integers. The integers should be
+indexes of characters, as in
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
   (let* ((i 0)
          (current-overlay (if ahs-current-overlay
                               (format "%s"
@@ -202,29 +249,38 @@ _D_: nextdef       ^ ^               _q_: cancel
   ))
 
 (defun get-plugin-x/y (plugin)
+  "For plugin `PLUGIN', computes the overlay counts.
+
+  The first number represents which occurrence of the currently focused symbol
+  is selected. The second number represents the total number of occurrences of
+  that symbol.
+
+  `PLUGIN' should be one of
+      'ahs-range-beginning-of-defun
+      'ahs-range-whole-buffer
+      'ahs-range-display"
   (let* ((occurrences (get-occurrences plugin))
          (occurrence-index
           (if occurrences
-              (+ 1 (get-occurrence-index plugin occurrences))
+              (+ 1 (get-occurrence-index occurrences))
             0))) ;; if 0 occurrences, don't increment 0
     (format "[%s/%s]" occurrence-index (length occurrences))))
 
 (defun footer ()
+  "This is the string to be (optionally) displayed at the bottom of the hydra."
   (if ahs-hydra-display-legend
-      (progn(setq guide
+      (let ((guide
             (concat
              "[" (propertize "KEY" 'face 'hydra-face-blue) "] exits state "
              "[" (propertize "KEY" 'face 'hydra-face-red) "] will not exit"
-             ))
-            (add-face-text-property 0 (length guide) 'italic t guide)
-            guide)
-    ""
-    )
-  )
+             )))
+        (add-face-text-property 0 (length guide) 'italic t guide)
+        guide)
+    ""))
 
 ;;;###autoload
-(defun ahs ()
-  "Highlight the symbol under point with `auto-highlight-symbol'."
+(defun engage-auto-highlight-symbol-hydra ()
+  "Trigger the hydra."
   (interactive)
   (unless (bound-and-true-p ahs-mode-line)
     (auto-highlight-symbol-mode)
@@ -236,24 +292,26 @@ _D_: nextdef       ^ ^               _q_: cancel
 ;; heads ;;
 ;;;;;;;;;;;
 
-(defun quick-ahs-forward ()
-  "Go to the next occurrence of symbol under point with `auto-highlight-symbol'"
+(defun move-point-one-symbol-forward ()
+  "Move to the next occurrence of symbol under point."
   (interactive)
-  (quick-ahs-move t))
+  (move-point-one-symbol t))
 
-(defun quick-ahs-backward ()
-  "Go to the previous occurrence of symbol under point with `auto-highlight-symbol'"
+(defun move-point-one-symbol-backward ()
+  "Move to the previous occurrence of symbol under point."
   (interactive)
-  (quick-ahs-move nil))
+  (move-point-one-symbol nil))
 
-(defun quick-ahs-move (forward)
-  "Go to the next occurrence of symbol under point with `auto-highlight-symbol'"
+(defun move-point-one-symbol (forward)
+  "Move to the previous or next occurrence of the symbol under point.
+
+  If `FORWARD' is non-nil, move forwards, otherwise, move backwards."
   (progn
     (ahs-highlight-now)
     (ahs-hydra/body)
     (if forward (ahs-forward) (ahs-backward))))
 
-(defun ahs-to-iedit ()
+(defun engage-iedit ()
   "Trigger iedit from ahs."
   (interactive)
    (progn
@@ -262,19 +320,14 @@ _D_: nextdef       ^ ^               _q_: cancel
                            (ahs-current-plugin-prop 'end)))
    (ahs-edit-mode t))
 
-(defun helm-projectile-ag-the-selection (current-folder)
-  "helm-projectile-ag the selection
-
-  if current-folder is t, then searches the current folder. Otherwise, searches
-  from the projectile directory root"
-  (interactive)
-  (projectile-helm-ag current-folder (symbol-at-point))
-)
-
-(defun symbol-at-point () (thing-at-point 'symbol))
+(defun symbol-at-point ()
+  "Get the symbol upon which the cursor is focused."
+  (thing-at-point 'symbol))
 
 (defun projectile-helm-ag (arg query)
-  "Run helm-do-ag relative to the project root.  Or, with prefix arg ARG, relative to the current directory."
+  "Run helm-do-ag relative to the project root, searching for `QUERY'.
+
+  Or, with prefix arg `ARG', search relative to the current directory."
   (interactive "P")
   (if arg
       (progn
