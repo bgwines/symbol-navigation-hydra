@@ -1,18 +1,39 @@
 # auto-highlight-symbol-hydra
 
-This package is an Emacs [hydra](https://github.com/abo-abo/hydra) inspired by the [Spacemacs AHS Transient State](https://develop.spacemacs.org/doc/DOCUMENTATION.html#highlight-current-symbol). **This package is under active development and has not yet been released to MELPA/ELPA/etc.**
+This package is an Emacs [hydra](https://github.com/abo-abo/hydra) inspired by the [Spacemacs AHS Transient State](https://develop.spacemacs.org/doc/DOCUMENTATION.html#highlight-current-symbol). It is a tool for navigating around and acting upon instances of a symbol (e.g. a function name or a keyword) within a specified range.
 
-The most prominent difference is simultaneous display of all three overlay counts, instead of just one:
+TODO gif here
 
-![overlays](https://github.com/bgwines/auto-highlight-symbol-hydra/blob/master/simultaneous-overlays.png)
+There are three available ranges:
 
-## Installation
+1. The function surrounding your cursor
+2. The entire buffer
+3. The visible portion of the buffer
 
-For most Emacs distributions, clone this repo and put it in your Emacs `load-path`. Then, in your config:
+With your cursor anywhere on a symbol (no need to select it), bring up the hydra, and you have a number of pieces of functionality available:
 
-```elisp
-(require 'auto-highlight-symbol-hydra)
-```
+* Navigation
+    * _n_ and _p_ move the cursor to the next and previous instance of the symbol, respectively
+    * _d_ and _D_ move the cursor to the next and previous definitions of the symbol, respectively.
+                  For example, you may define multiple variables with the same name across multiple
+                  functions.
+    * _r_ selects another range. There are only three, so at most you need to hit it twice.
+    * _R_ moves the cursor back to where it was when you activated the hydra.
+    * _z_ vertically centers the current line. This is like the Emacs command `recenter-top-bottom` -
+          usually `C-l` - but within the hydra.
+* Search
+    * _f_ and _g_ search for the symbol in the current directory and Projectile project, respectively.
+                  This is not a function of the current range.
+* Multi-occurrence
+    * _e_ places multiple cursors on every instance of the symbol. This is range-aware.
+    * _s_ activates [Helm Swoop](https://github.com/emacsorphanage/helm-swoop) on the symbol. This
+          is not range-aware.
+
+## Setup
+
+### Installing
+
+For most Emacs distributions, install via MELPA, or clone this repo and put it in your Emacs `load-path`.
 
 For Doom:
 
@@ -22,11 +43,12 @@ For Doom:
   '(:host github
     :repo "bgwines/auto-highlight-symbol-hydra"))
 
-;; in config.el (yes, you do need this -- otherwise, you will need to evaluate
-;;               a function from the package in the buffer (e.g.
-;;               `engage-auto-highlight-symbol-hydra`) in order for the package
-;;               to actually be loaded. This seems to be something specific to
-;;               hydras are loaded.)
+```
+
+### Activating
+
+```elisp
+;; in your .emacs file or equivalent
 (require 'auto-highlight-symbol-hydra)
 ```
 
@@ -59,19 +81,11 @@ If this is your first time using an Emacs hydra, you might want to set
 
 You may also wish to customize some other variables from the [Auto Highlight Symbol package](https://github.com/mhayashi1120/auto-highlight-symbol-mode) itself.
 
-## TODO
+## Differences with the Spacemacs AHS Hydra
 
-* P1
-    * In Doom Emacs, some non-focused windows flicker during hydra navigation.
-      This appears to be a bug with the hydra package, as it occurs even with
-      a minimal hydra for adjusting text size.
-    * Expose a variable to hide the `DISPLAY` range.
-* P2
-    * Fancier multi-cursor support (`iedit` only operates on all instances within
-      the range).
-    * The Spacemacs AHS hydra has another kind of search in addition to "files"
-      and "project": "buffers", which searches open buffers. This isn't yet
-      supported here since I didn't think it would be too useful.
+The most prominent difference is simultaneous display of all three overlay counts, instead of just one:
+
+![overlays](https://github.com/bgwines/auto-highlight-symbol-hydra/blob/master/simultaneous-overlays.png)
 
 ## Feedback
 

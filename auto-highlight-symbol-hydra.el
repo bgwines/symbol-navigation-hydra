@@ -4,7 +4,7 @@
 
 ;; Author: Brett Wines <bgwines@cs.stanford.edu>
 ;; Keywords: highlight face match convenience hydra symbol
-;; Package-Requires: (auto-highlight-symbol iedit)
+;; Package-Requires: (auto-highlight-symbol iedit helm-do-ag helm-swoop projectile)
 ;; URL: https://github.com/bgwines/auto-highlight-symbol-hydra
 ;; Version: 0.0.1
 
@@ -72,19 +72,23 @@
   :group 'auto-highlight-symbol-hydra)
 (defvar ahs-plugin-beginning-of-defun-face-dim 'ahs-plugin-beginning-of-defun-face-dim)
 
-;; Buffer local variables
+;; Buffer-local variables
 (defvar ahs-hydra-point-at-invocation nil)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; displaying the hydra ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;###autoload (autoload 'ahs-hydra/body "auto-highlight-symbol-hydra.el" nil nil)
 (defhydra ahs-hydra (:hint nil)
   "
 %s(header)
-^Navigation^     ^^^^Search^          ^AHS Hydra^        ^Multi^
+^Navigation^         ^ ^           ^^^^Search^           ^Multi^
 ^^^^^^^^^^^^--------------------------------------------------------
-_n_^^^^: next        _f_: folder       _r_: range         _e_: iedit
-_N_/_p_: previous^^  _g_: project      _R_: reset         _s_: swoop
-_d_^^^^: prevdef     ^ ^               _z_: recenter
-_D_^^^^: nextdef     ^ ^               _q_: cancel
+_n_^^^^: next        _z_: recenter     _f_: folder        _e_: iedit
+_N_/_p_: previous^^  _R_: reset        _g_: project       _s_: swoop
+_d_^^^^: prevdef     _r_: range
+_D_^^^^: nextdef     _q_: cancel
 %s(footer)"
   ("n" move-point-one-symbol-forward)
   ("N" move-point-one-symbol-backward)
@@ -99,10 +103,6 @@ _D_^^^^: nextdef     ^ ^               _q_: cancel
   ("f" (projectile-helm-ag t (symbol-at-point)) :exit t)
   ("g" (projectile-helm-ag nil (symbol-at-point)) :exit t)
   ("q" nil :exit t))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; displaying the hydra ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun header ()
   "This is the user-visible header at the top of the hydra.
