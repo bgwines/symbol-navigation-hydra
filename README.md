@@ -30,6 +30,9 @@ for now, in Doom:
 ;; Personal preference
 (setq-default ahs-default-range 'ahs-range-whole-buffer)
 
+;; Disable symbol highlighting when the hydra is not active (yes, this is a hack 😅)
+(setq-default ahs-idle-interval 999999999.0)
+
 ;; Many - but not all - languages are supported by default. You'll probably get pretty good
 ;; behavior by just opting one in if it's not already there.
 (push 'haskell-mode ahs-modes) ;; e.g. if you want Haskell
@@ -43,14 +46,6 @@ If this is your first time using an Emacs hydra, you may also wish to set
 ```
 
 You may also wish to customize some other variables from the [Auto Highlight Symbol package](https://github.com/mhayashi1120/auto-highlight-symbol-mode) itself.
-
-## Dependencies
-
-``` elisp
-(package! auto-highlight-symbol)
-(package! iedit)
-(package! symbol-overlay)
-```
 
 ## TODO
 
