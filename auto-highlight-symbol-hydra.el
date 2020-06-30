@@ -248,15 +248,10 @@ _D_: nextdef       ^ ^               _q_: cancel
 
 (defun quick-ahs-move (forward)
   "Go to the next occurrence of symbol under point with `auto-highlight-symbol'"
-  (if forward
-      (progn
-        (ahs-highlight-now)
-        (ahs-hydra/body)
-        (ahs-forward))
-    (progn
-      (ahs-highlight-now)
-      (ahs-hydra/body)
-      (ahs-backward))))
+  (progn
+    (ahs-highlight-now)
+    (ahs-hydra/body)
+    (if forward (ahs-forward) (ahs-backward))))
 
 (defun ahs-to-iedit ()
   "Trigger iedit from ahs."
