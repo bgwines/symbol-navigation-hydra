@@ -76,18 +76,18 @@
 (defhydra ahs-hydra (:hint nil)
   "
 %s(header)
-^Navigation^       ^Search^          ^AHS Hydra^        ^Multi^
-----------------------------------------------------------
-_n_: next          _f_: folder       _r_: range         _e_: iedit
-_N_/_p_: previous    _g_: project      _R_: reset         _s_: swoop
-_d_: prevdef       ^ ^               _z_: recenter
-_D_: nextdef       ^ ^               _q_: cancel
+^Navigation^     ^^^^Search^          ^AHS Hydra^        ^Multi^
+^^^^^^^^^^^^--------------------------------------------------------
+_n_^^^^: next        _f_: folder       _r_: range         _e_: iedit
+_N_/_p_: previous^^  _g_: project      _R_: reset         _s_: swoop
+_d_^^^^: prevdef     ^ ^               _z_: recenter
+_D_^^^^: nextdef     ^ ^               _q_: cancel
 %s(footer)"
   ("n" move-point-one-symbol-forward)
   ("N" move-point-one-symbol-backward)
   ("p" move-point-one-symbol-backward)
-  ("d" ahs-forward-definition)
-  ("D" ahs-backward-definition)
+  ("d" move-point-forward-to-definition)
+  ("D" move-point-backward-to-definition)
   ("r" ahs-change-range)
   ("R" ahs-back-to-start)
   ("z" (progn (recenter-top-bottom) (ahs)))
@@ -291,6 +291,26 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 ;;;;;;;;;;;
 ;; heads ;;
 ;;;;;;;;;;;
+
+(defun move-point-forward-to-definition ()
+  "Move to the next occurrence of symbol under point."
+  (interactive)
+  (move-point-to-definition t))
+
+(defun move-point-backward-to-definition ()
+  "Move to the previous occurrence of symbol under point."
+  (interactive)
+  (move-point-to-definition nil))
+
+(defun move-point-to-definition (forward)
+  "Move to the previous or next occurrence of the symbol under point.
+
+  If `FORWARD' is non-nil, move forwards, otherwise, move backwards."
+  (progn
+    (ahs-highlight-now)
+    (ahs-hydra/body)
+    (if forward (ahs-forward-definition) (ahs-backward-definition))))
+
 
 (defun move-point-one-symbol-forward ()
   "Move to the next occurrence of symbol under point."

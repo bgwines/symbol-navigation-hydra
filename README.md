@@ -52,7 +52,6 @@ You may also wish to customize some other variables from the [Auto Highlight Sym
 * p1
     * display-flickering
     * hide `DISPLAY` range-mode by default (expose a variable to enable it)
-    * fix _d_, _D_, and _R_
 * p2
     * support MC next/prev selection? (normal MC is not symbol-aware) (or just make my normal MC symbol-aware? Maybe there's a variable)
     * support _b_ (buffer) search
