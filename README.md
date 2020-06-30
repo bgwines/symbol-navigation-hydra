@@ -8,15 +8,27 @@ The most prominent difference is simultaneous display of all three overlay count
 
 ## Installation
 
-for now, in Doom:
+For most Emacs distributions, clone this repo and put it in your Emacs `load-path`. Then, in your config:
 
 ```elisp
+(require 'auto-highlight-symbol-hydra)
+```
+
+For Doom:
+
+```elisp
+;; in packages.el
 (package! auto-highlight-symbol-hydra :recipe
   '(:host github
     :repo "bgwines/auto-highlight-symbol-hydra"))
-```
 
-(once this has been released) On most Emacs distributions, a simple `(require 'auto-highlight-symbol-hydra)` should suffice. For Doom, it is not sufficient to place the package in your `packages.el` -- you need to also add the `require`-statement to your `config.el`. Otherwise, you will need to evaluate a function in the buffer (e.g. `ahs`) for the package to actually be loaded.
+;; in config.el (yes, you do need this -- otherwise, you will need to evaluate
+;;               a function from the package in the buffer (e.g.
+;;               `engage-auto-highlight-symbol-hydra`) in order for the package
+;;               to actually be loaded. This seems to be something specific to
+;;               hydras are loaded.)
+(require 'auto-highlight-symbol-hydra)
+```
 
 ## Recommended Settings
 
@@ -27,10 +39,10 @@ for now, in Doom:
 ;; Be case-sensitive, since you are probably using this for code.
 (setq-default ahs-case-fold-search nil)
 
-;; Personal preference
+;; Personal preference -- set the default "range" of operation to be the entire buffer.
 (setq-default ahs-default-range 'ahs-range-whole-buffer)
 
-;; Disable symbol highlighting when the hydra is not active (yes, this is a hack 😅)
+;; Disable symbol highlighting when the hydra is not active (yes, this is a hack 😅).
 (setq-default ahs-idle-interval 999999999.0)
 
 ;; Many - but not all - languages are supported by default. You'll probably get pretty good
@@ -38,7 +50,7 @@ for now, in Doom:
 (push 'haskell-mode ahs-modes) ;; e.g. if you want Haskell
 ```
 
-If this is your first time using an Emacs hydra, you may also wish to set
+If this is your first time using an Emacs hydra, you might want to set
 
 ```elisp
 ;; Once you know what the colors mean, you probably won't need this anymore.
@@ -49,12 +61,17 @@ You may also wish to customize some other variables from the [Auto Highlight Sym
 
 ## TODO
 
-* p1
-    * display-flickering
-    * hide `DISPLAY` range-mode by default (expose a variable to enable it)
-* p2
-    * support MC next/prev selection? (normal MC is not symbol-aware) (or just make my normal MC symbol-aware? Maybe there's a variable)
-    * support _b_ (buffer) search
+* P1
+    * In Doom Emacs, some non-focused windows flicker during hydra navigation.
+      This appears to be a bug with the hydra package, as it occurs even with
+      a minimal hydra for adjusting text size.
+    * Expose a variable to hide the `DISPLAY` range.
+* P2
+    * Fancier multi-cursor support (`iedit` only operates on all instances within
+      the range).
+    * The Spacemacs AHS hydra has another kind of search in addition to "files"
+      and "project": "buffers", which searches open buffers. This isn't yet
+      supported here since I didn't think it would be too useful.
 
 ## Feedback
 

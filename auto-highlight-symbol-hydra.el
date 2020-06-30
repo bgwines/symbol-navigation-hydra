@@ -6,7 +6,7 @@
 ;; Keywords: highlight face match convenience hydra symbol
 ;; Package-Requires: (auto-highlight-symbol iedit)
 ;; URL: https://github.com/bgwines/auto-highlight-symbol-hydra
-;; Version: 0.0.5
+;; Version: 0.0.1
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -72,6 +72,9 @@
   :group 'auto-highlight-symbol-hydra)
 (defvar ahs-plugin-beginning-of-defun-face-dim 'ahs-plugin-beginning-of-defun-face-dim)
 
+;; Buffer local variables
+(defvar ahs-hydra-point-at-invocation nil)
+
 ;;;###autoload (autoload 'ahs-hydra/body "auto-highlight-symbol-hydra.el" nil nil)
 (defhydra ahs-hydra (:hint nil)
   "
@@ -89,7 +92,7 @@ _D_^^^^: nextdef     ^ ^               _q_: cancel
   ("d" move-point-forward-to-definition)
   ("D" move-point-backward-to-definition)
   ("r" ahs-change-range)
-  ("R" ahs-back-to-start)
+  ("R" back-to-start)
   ("z" (progn (recenter-top-bottom) (ahs)))
   ("e" engage-iedit :exit t)
   ("s" (call-interactively 'helm-swoop) :exit t)
@@ -282,6 +285,7 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 (defun engage-auto-highlight-symbol-hydra ()
   "Trigger the hydra."
   (interactive)
+  (setq ahs-hydra-point-at-invocation (point))
   (unless (bound-and-true-p ahs-mode-line)
     (auto-highlight-symbol-mode)
     )
@@ -291,6 +295,14 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 ;;;;;;;;;;;
 ;; heads ;;
 ;;;;;;;;;;;
+
+(defun back-to-start ()
+  "Move `point' to the location it was upon user-initiated hydra invocation."
+  (interactive)
+  (goto-char ahs-hydra-point-at-invocation)
+  (ahs-highlight-now)
+  (ahs-hydra/body)
+  )
 
 (defun move-point-forward-to-definition ()
   "Move to the next occurrence of symbol under point."
@@ -310,7 +322,6 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
     (ahs-highlight-now)
     (ahs-hydra/body)
     (if forward (ahs-forward-definition) (ahs-backward-definition))))
-
 
 (defun move-point-one-symbol-forward ()
   "Move to the next occurrence of symbol under point."
