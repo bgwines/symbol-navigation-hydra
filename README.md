@@ -31,11 +31,18 @@ With your cursor anywhere on a symbol (no need to select it), bring up the hydra
 
 ## Setup
 
-### Installing
+### Installing (for most Emacs distributions)
 
-For most Emacs distributions, install via MELPA, or clone this repo and put it in your Emacs `load-path`.
+Install this package via MELPA.
 
-For Doom:
+Alternately, clone a) this repo b) [hydra](https://github.com/abo-abo/hydra) c) [auto-highlight-symbol](https://github.com/mhayashi1120/auto-highlight-symbol-mode) and put them all in your Emacs `load-path`:
+
+``` elisp
+(add-to-list 'load-path "~/path/to/cloned/repo/")
+...
+```
+
+### Installing (for Doom)
 
 ```elisp
 ;; in packages.el
@@ -45,11 +52,24 @@ For Doom:
 
 ```
 
+### Installing (additional functionality)
+
+By default, only the navigation functionality is enabled. The remaining heads are disabled so as to not bloat the user's setup by installing a bunch of dependencies when installing this package. The following packages are optional, but enable features that are disabled otherwise:
+
+* [`iedit`](https://github.com/victorhge/iedit)
+* [`helm-swoop`](https://github.com/emacsorphanage/helm-swoop)
+* [`helm-ag`](https://github.com/emacsorphanage/helm-ag)
+* [`projectile`](https://github.com/bbatsov/projectile)
+
 ### Activating
 
 ```elisp
 ;; in your .emacs file or equivalent
 (require 'auto-highlight-symbol-hydra)
+
+;; if you're not using Doom, you also need the following
+(require 'hydra)
+(require 'auto-highlight-symbol)
 ```
 
 ## Recommended Settings

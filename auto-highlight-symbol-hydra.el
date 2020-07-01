@@ -4,7 +4,7 @@
 
 ;; Author: Brett Wines <bgwines@cs.stanford.edu>
 ;; Keywords: highlight face match convenience hydra symbol
-;; Package-Requires: (auto-highlight-symbol iedit helm-do-ag helm-swoop projectile)
+;; Package-Requires: (auto-highlight-symbol hydra)
 ;; URL: https://github.com/bgwines/auto-highlight-symbol-hydra
 ;; Version: 0.0.1
 
@@ -83,10 +83,10 @@
 (defhydra ahs-hydra (:hint nil)
   "
 %s(header)
-^Navigation^         ^ ^           ^^^^Search^           ^Multi^
-^^^^^^^^^^^^--------------------------------------------------------
-_n_^^^^: next        _z_: recenter     _f_: folder        _e_: iedit
-_N_/_p_: previous^^  _R_: reset        _g_: project       _s_: swoop
+^ ^       Navigation ^ ^          ^^^^Search^%s(header-col-3-extra-spaces)         ^Multi^
+^^^^^^^^^^^^---------------------------------%s(header-extra--s)--------------------^^^^^^^^^^^^^^^^
+_n_^^^^: next        _z_: recenter    _f_: folder%s(projectile-suffix)      _e_: iedit%s(iedit-suffix)
+_N_/_p_: previous^^  _R_: reset       _g_: project%s(projectile-suffix)     _s_: swoop%s(swoop-suffix)
 _d_^^^^: prevdef     _r_: range
 _D_^^^^: nextdef     _q_: cancel
 %s(footer)"
@@ -99,10 +99,64 @@ _D_^^^^: nextdef     _q_: cancel
   ("R" back-to-start)
   ("z" (progn (recenter-top-bottom) (ahs)))
   ("e" engage-iedit :exit t)
-  ("s" (call-interactively 'helm-swoop) :exit t)
+  ("s" swoop :exit t)
   ("f" (projectile-helm-ag t (symbol-at-point)) :exit t)
   ("g" (projectile-helm-ag nil (symbol-at-point)) :exit t)
   ("q" nil :exit t))
+
+(defun header-extra--s ()
+  "Returns a string with 0 or more '-' characters."
+  (let ((col-3 (max (length (iedit-suffix)) (length (swoop-suffix))))
+        (col-4 (length (projectile-suffix))))
+    (make-string (+ col-3 col-4) ?-)))
+
+(defun header-col-3-extra-spaces ()
+  "Returns a string with 0 or more ' ' characters."
+  (make-string (length (projectile-suffix)) ? ))
+
+(defun swoop ()
+  "Perform helm-swoop on the current symbol."
+  (interactive)
+  (if (is-swoop-enabled)
+      (call-interactively 'helm-swoop)
+    (error-not-installed "helm-swoop")))
+
+(defun swoop-suffix ()
+  "Indicate disabledness if necessary."
+  (head-suffix (is-swoop-enabled)))
+
+(defun iedit-suffix ()
+  "Indicate disabledness if necessary."
+  (head-suffix (is-iedit-enabled)))
+
+(defun projectile-suffix ()
+  "Indicate disabledness if necessary.
+
+This function is an aggregation of two checks because they both guard the same
+behavior in the UI."
+  (or (head-suffix (is-projectile-enabled)) (head-suffix (is-helm-ag-enabled))))
+
+(defun head-suffix (is-enabled)
+  "Indicate disabledness if necessary.
+
+`IS-ENABLED' should be a boolean."
+  (if is-enabled "" " (disabled)"))
+
+(defun is-swoop-enabled ()
+  "Determine whether the package is loaded."
+  (helpful--bound-p 'helm-swoop))
+
+(defun is-iedit-enabled ()
+  "Determine whether the package is loaded."
+  (helpful--bound-p 'iedit-mode))
+
+(defun is-projectile-enabled ()
+  "Determine whether the package is loaded."
+  (helpful--bound-p 'projectile-mode))
+
+(defun is-helm-ag-enabled ()
+  "Determine whether the package is loaded."
+  (helpful--bound-p 'helm-do-ag))
 
 (defun header ()
   "This is the user-visible header at the top of the hydra.
@@ -345,11 +399,13 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 (defun engage-iedit ()
   "Trigger iedit from ahs."
   (interactive)
+  (if (is-iedit-enabled)
    (progn
     (iedit-mode)
     (iedit-restrict-region (ahs-current-plugin-prop 'start)
-                           (ahs-current-plugin-prop 'end)))
-   (ahs-edit-mode t))
+                           (ahs-current-plugin-prop 'end))
+    (ahs-edit-mode t))
+   (error-not-installed "iedit")))
 
 (defun symbol-at-point ()
   "Get the symbol upon which the cursor is focused."
@@ -360,19 +416,29 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 
   Or, with prefix arg `ARG', search relative to the current directory."
   (interactive "P")
-  (if arg
-      (progn
-        ;; Have to kill the prefix arg so it doesn't get forwarded
-        ;; and screw up helm-do-ag
-        (set-variable 'current-prefix-arg nil)
+  (if (is-projectile-enabled)
+      (if (is-helm-ag-enabled)
+          (if arg
+              (progn
+                ;; Have to kill the prefix arg so it doesn't get forwarded
+                ;; and screw up helm-do-ag
+                (set-variable 'current-prefix-arg nil)
 
-        (if dired-directory
-            (helm-do-ag dired-directory nil query)
-          (helm-do-ag (file-name-directory (buffer-file-name)) nil query)
-          )
-        )
-    (helm-do-ag (projectile-project-root) nil query)
-    ))
+                (if dired-directory
+                    (helm-do-ag dired-directory nil query)
+                  (helm-do-ag (file-name-directory (buffer-file-name)) nil query)
+                  )
+                )
+            (helm-do-ag (projectile-project-root) nil query)
+            )
+        (error-not-installed "helm-ag"))
+    (error-not-installed "projectile")))
+
+(defun error-not-installed (package-name)
+  "Raise an error.
+
+`PACKAGE-NAME' should bethe name of the package that isn't installed."
+  (error (format "%s not installed" package-name)))
 
 (provide 'auto-highlight-symbol-hydra)
 
