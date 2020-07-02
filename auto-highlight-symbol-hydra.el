@@ -144,19 +144,19 @@ behavior in the UI."
 
 (defun is-swoop-enabled ()
   "Determine whether the package is loaded."
-  (helpful--bound-p 'helm-swoop))
+  (fboundp 'helm-swoop))
 
 (defun is-iedit-enabled ()
   "Determine whether the package is loaded."
-  (helpful--bound-p 'iedit-mode))
+  (fboundp 'iedit-mode))
 
 (defun is-projectile-enabled ()
   "Determine whether the package is loaded."
-  (helpful--bound-p 'projectile-mode))
+  (fboundp 'projectile-mode))
 
 (defun is-helm-ag-enabled ()
   "Determine whether the package is loaded."
-  (helpful--bound-p 'helm-do-ag))
+  (fboundp 'helm-do-ag))
 
 (defun header ()
   "This is the user-visible header at the top of the hydra.
