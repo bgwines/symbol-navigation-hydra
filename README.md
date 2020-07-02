@@ -2,7 +2,7 @@
 
 This package is an Emacs [hydra](https://github.com/abo-abo/hydra) inspired by the [Spacemacs AHS Transient State](https://develop.spacemacs.org/doc/DOCUMENTATION.html#highlight-current-symbol). It is a tool for navigating around and acting upon instances of a symbol (e.g. a function name or a keyword) within a specified range.
 
-TODO gif here
+-![demo](https://github.com/bgwines/symbol-navigation-hydra/blob/master/snhydra-demo.gif)
 
 There are three available ranges:
 
@@ -102,11 +102,7 @@ You may also wish to customize some other variables from the [Auto Highlight Sym
 
 ## Differences with the Spacemacs AHS Hydra
 
-The most prominent difference is simultaneous display of all three overlay counts, instead of just one:
-
-![overlays](https://github.com/bgwines/symbol-navigation-hydra/blob/master/simultaneous-overlays.png)
-
-I've also removed the _d_ and _D_ keys since the Auto Highlight Symbol implementation wasn't as accurate as I'd like. Keeping it simple. The _b_ key is not supported since I didn't find it useful (tracked in a Github issue).
+The most prominent difference is simultaneous display of all three overlay counts, instead of just one. The _d_ and _D_ keys are removed since the Auto Highlight Symbol implementation wasn't as accurate as I'd like. The _b_ key is not supported since I didn't find it useful (tracked in a Github issue).
 
 ## Other
 
