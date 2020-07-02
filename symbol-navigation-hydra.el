@@ -378,6 +378,7 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
   "Move `point' to the location it was upon user-initiated hydra invocation."
   (interactive)
   (goto-char sn-hydra-point-at-invocation)
+  (recenter-top-bottom)
   (ahs-highlight-now)
   (sn-hydra/body)
   )
