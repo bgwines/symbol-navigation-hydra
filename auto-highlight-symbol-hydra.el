@@ -100,8 +100,8 @@ _D_^^^^: nextdef     _q_: cancel
   ("z" (progn (recenter-top-bottom) (ahs)))
   ("e" engage-iedit :exit t)
   ("s" swoop :exit t)
-  ("f" (projectile-helm-ag t (symbol-at-point)) :exit t)
-  ("g" (projectile-helm-ag nil (symbol-at-point)) :exit t)
+  ("f" (projectile-helm-ag t (thing-at-point 'symbol)) :exit t)
+  ("g" (projectile-helm-ag nil (thing-at-point 'symbol)) :exit t)
   ("q" nil :exit t))
 
 (defun header-extra--s ()
@@ -265,7 +265,7 @@ package.
 The returnvalue is a list of pairs of integers. The integers are indexes
 of characters, as in
 https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
-  (let* ((symbol (symbol-at-point))
+  (let* ((symbol (thing-at-point 'symbol))
          (search-range (get-plugin-search-range symbol plugin)))
     (if symbol
         (if (consp search-range)
@@ -406,10 +406,6 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
                            (ahs-current-plugin-prop 'end))
     (ahs-edit-mode t))
    (error-not-installed "iedit")))
-
-(defun symbol-at-point ()
-  "Get the symbol upon which the cursor is focused."
-  (thing-at-point 'symbol))
 
 (defun projectile-helm-ag (arg query)
   "Run helm-do-ag relative to the project root, searching for `QUERY'.
