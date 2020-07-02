@@ -1,4 +1,4 @@
-# auto-highlight-symbol-hydra
+# Symbol Navigation Hydra
 
 This package is an Emacs [hydra](https://github.com/abo-abo/hydra) inspired by the [Spacemacs AHS Transient State](https://develop.spacemacs.org/doc/DOCUMENTATION.html#highlight-current-symbol). It is a tool for navigating around and acting upon instances of a symbol (e.g. a function name or a keyword) within a specified range.
 
@@ -45,9 +45,9 @@ Alternately, clone a) this repo b) [hydra](https://github.com/abo-abo/hydra) c) 
 
 ```elisp
 ;; in packages.el
-(package! auto-highlight-symbol-hydra :recipe
+(package! symbol-navigation-hydra :recipe
   '(:host github
-    :repo "bgwines/auto-highlight-symbol-hydra"))
+    :repo "bgwines/symbol-navigation-hydra"))
 
 ```
 
@@ -64,7 +64,7 @@ By default, only the navigation functionality is enabled. The remaining heads ar
 
 ```elisp
 ;; in your .emacs file or equivalent
-(require 'auto-highlight-symbol-hydra)
+(require 'symbol-navigation-hydra)
 
 ;; if you're not using Doom, you also need the following
 (require 'hydra)
@@ -75,7 +75,7 @@ By default, only the navigation functionality is enabled. The remaining heads ar
 
 ```elisp
 ;; You'll want a keystroke for bringing up the hydra.
-(global-set-key (kbd "something") 'engage-auto-highlight-symbol-hydra)
+(global-set-key (kbd "something") 'engage-symbol-navigation-hydra)
 
 ;; Be case-sensitive, since you are probably using this for code.
 (setq-default ahs-case-fold-search nil)
@@ -104,8 +104,12 @@ You may also wish to customize some other variables from the [Auto Highlight Sym
 
 The most prominent difference is simultaneous display of all three overlay counts, instead of just one:
 
-![overlays](https://github.com/bgwines/auto-highlight-symbol-hydra/blob/master/simultaneous-overlays.png)
+![overlays](https://github.com/bgwines/symbol-navigation-hydra/blob/master/simultaneous-overlays.png)
 
-## Feedback
+I've also removed the _d_ and _D_ keys since the Auto Highlight Symbol implementation wasn't as accurate as I'd like. Keeping it simple. The _b_ key is not supported since I didn't find it useful (tracked in a Github issue).
+
+## Other
 
 I'd love to hear your feedback. Raise an Github issue here and I'll respond promptly.
+
+Many thanks to [thomasjm](http://github.com/thomasjm) for contributing ideas, code, and debugging to this package.

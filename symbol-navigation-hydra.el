@@ -1,11 +1,11 @@
-;;; auto-highlight-symbol-hydra.el --- A hydra for `auto-highlight-symbol' -*- lexical-binding: t; -*-
+;;; symbol-navigation-hydra.el --- A hydra for navigation (and more!) -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  Brett Wines
 
 ;; Author: Brett Wines <bgwines@cs.stanford.edu>
 ;; Keywords: highlight face match convenience hydra symbol
 ;; Package-Requires: (auto-highlight-symbol hydra)
-;; URL: https://github.com/bgwines/auto-highlight-symbol-hydra
+;; URL: https://github.com/bgwines/symbol-navigation-hydra
 ;; Version: 0.0.1
 
 ;; This file is NOT part of GNU Emacs.
@@ -37,50 +37,50 @@
 
 ;;; Code:
 
-(defgroup auto-highlight-symbol-hydra nil
-  "The Auto-Highlight Symbol Hydra"
+(defgroup symbol-navigation-hydra nil
+  "The Symbol Navigation Hydra"
   :group 'convenience
   :link `(url-link :tag "Download latest version"
                    ,(eval-when-compile (concat "https://github.com/bgwines/"
-                                               "auto-highlight-symbol-hydra/"
-                                               "blob/master/auto-highlight-symbol-hydra.el")))
+                                               "symbol-navigation-hydra/"
+                                               "blob/master/symbol-navigation-hydra.el")))
   :link `(url-link :tag "Information"
                    ,(eval-when-compile (concat
                                         "https://github.com/bgwines/"
-                                        "auto-highlight-symbol-hydra"))))
+                                        "symbol-navigation-hydra"))))
 
-(defcustom ahs-hydra-display-legend nil
+(defcustom sn-hydra-display-legend nil
   "*Non-nil means suppress the KEY legend."
-  :group 'auto-highlight-symbol-hydra
+  :group 'symbol-navigation-hydra
   :type 'boolean)
 
 (defface ahs-plugin-display-face-dim
   '((t (:foreground "#eeeeee" :background "#3a2303")))
   "Dimmer version of the Display face."
-  :group 'auto-highlight-symbol-hydra)
+  :group 'symbol-navigation-hydra)
 (defvar ahs-plugin-display-face-dim 'ahs-plugin-display-face-dim)
 
 (defface ahs-plugin-whole-buffer-face-dim
   '((t (:foreground "#eeeeee" :background "#182906")))
   "Dimmer version of the Buffer face."
-  :group 'auto-highlight-symbol-hydra)
+  :group 'symbol-navigation-hydra)
 (defvar ahs-plugin-whole-buffer-face-dim 'ahs-plugin-whole-buffer-face-dim)
 
 (defface ahs-plugin-beginning-of-defun-face-dim
   '((t (:foreground "#eeeeee" :background "#0b2d5c")))
   "Dimmer version of the Function face."
-  :group 'auto-highlight-symbol-hydra)
+  :group 'symbol-navigation-hydra)
 (defvar ahs-plugin-beginning-of-defun-face-dim 'ahs-plugin-beginning-of-defun-face-dim)
 
 ;; Buffer-local variables
-(defvar ahs-hydra-point-at-invocation nil)
+(defvar sn-hydra-point-at-invocation nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; displaying the hydra ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;###autoload (autoload 'ahs-hydra/body "auto-highlight-symbol-hydra.el" nil nil)
-(defhydra ahs-hydra (:hint nil)
+;;;###autoload (autoload 'sn-hydra/body "symbol-navigation-hydra.el" nil nil)
+(defhydra sn-hydra (:hint nil)
   "
 %s(header)
 ^ ^       Navigation ^ ^        ^^^^^^Search^%s(header-col-3-extra-spaces)         ^Multi^
@@ -94,7 +94,7 @@ _R_: reset       ^^^^_q_: cancel
   ("p" move-point-one-symbol-backward)
   ("r" ahs-change-range)
   ("R" back-to-start)
-  ("z" (progn (recenter-top-bottom) (ahs)))
+  ("z" (progn (recenter-top-bottom) (engage-symbol-navigation-hydra)))
   ("e" engage-iedit :exit t)
   ("s" swoop :exit t)
   ("f" (projectile-helm-ag t (thing-at-point 'symbol)) :exit t)
@@ -104,7 +104,7 @@ _R_: reset       ^^^^_q_: cancel
 (defface disabled-head-face
   '((t (:foreground "#777777")))
   "Face for disabled hydra heads."
-  :group 'auto-highlight-symbol-hydra)
+  :group 'symbol-navigation-hydra)
 (defvar disabled-head-face 'disabled-head-face)
 
 (defun swoop-header ()
@@ -220,7 +220,7 @@ It is comprised of
         (concat name x/y)))
 
     (concat
-     (propertize "AHS Hydra" 'face `(:box t :weight bold)) "  "
+     (propertize "SN Hydra" 'face `(:box t :weight bold)) "   "
      (plugin-component 'ahs-range-beginning-of-defun) "  "
      (plugin-component 'ahs-range-whole-buffer) "  "
      (plugin-component 'ahs-range-display)
@@ -349,7 +349,7 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 
 (defun footer ()
   "This is the string to be (optionally) displayed at the bottom of the hydra."
-  (if ahs-hydra-display-legend
+  (if sn-hydra-display-legend
       (let ((guide
             (concat
              "[" (propertize "KEY" 'face 'hydra-face-blue) "] exits state "
@@ -360,15 +360,15 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
     ""))
 
 ;;;###autoload
-(defun engage-auto-highlight-symbol-hydra ()
+(defun engage-symbol-navigation-hydra ()
   "Trigger the hydra."
   (interactive)
-  (setq ahs-hydra-point-at-invocation (point))
+  (setq sn-hydra-point-at-invocation (point))
   (unless (bound-and-true-p ahs-mode-line)
     (auto-highlight-symbol-mode)
     )
   (ahs-highlight-now)
-  (ahs-hydra/body))
+  (sn-hydra/body))
 
 ;;;;;;;;;;;
 ;; heads ;;
@@ -377,9 +377,9 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 (defun back-to-start ()
   "Move `point' to the location it was upon user-initiated hydra invocation."
   (interactive)
-  (goto-char ahs-hydra-point-at-invocation)
+  (goto-char sn-hydra-point-at-invocation)
   (ahs-highlight-now)
-  (ahs-hydra/body)
+  (sn-hydra/body)
   )
 
 (defun move-point-one-symbol-forward ()
@@ -398,11 +398,11 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
   If `FORWARD' is non-nil, move forwards, otherwise, move backwards."
   (progn
     (ahs-highlight-now)
-    (ahs-hydra/body)
+    (sn-hydra/body)
     (if forward (ahs-forward) (ahs-backward))))
 
 (defun engage-iedit ()
-  "Trigger iedit from ahs."
+  "Trigger iedit."
   (interactive)
   (if (is-iedit-enabled)
    (progn
@@ -441,6 +441,6 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 `PACKAGE-NAME' should be the name of the package that isn't installed."
   (error (format "%s not installed. See Auto-Highlight Symbol Hydra README.md" package-name)))
 
-(provide 'auto-highlight-symbol-hydra)
+(provide 'symbol-navigation-hydra)
 
-;;; auto-highlight-symbol-hydra.el ends here
+;;; symbol-navigation-hydra.el ends here
