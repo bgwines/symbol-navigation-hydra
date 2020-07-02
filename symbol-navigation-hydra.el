@@ -94,7 +94,7 @@ _R_: reset       ^^^^_q_: cancel
   ("p" move-point-one-symbol-backward)
   ("r" ahs-change-range)
   ("R" back-to-start)
-  ("z" (progn (recenter-top-bottom) (engage-symbol-navigation-hydra)))
+  ("z" (progn (recenter-top-bottom) (ahs-highlight-now) (sn-hydra/body)))
   ("e" engage-iedit :exit t)
   ("s" swoop :exit t)
   ("f" (projectile-helm-ag t (thing-at-point 'symbol)) :exit t)
