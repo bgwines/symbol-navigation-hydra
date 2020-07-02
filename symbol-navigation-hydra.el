@@ -108,37 +108,43 @@ _R_: reset       ^^^^_q_: cancel
 (defvar disabled-head-face 'disabled-head-face)
 
 (defun swoop-header ()
+  "The header for the \"swoop\" hydra head."
   (head-header (is-swoop-enabled) "swoop" (swoop-suffix)))
 
 (defun iedit-header ()
+  "The header for the \"swoop\" hydra head."
   (head-header (is-iedit-enabled) "iedit" (iedit-suffix)))
 
 (defun folder-header ()
+  "The header for the \"swoop\" hydra head."
   (head-header (and (is-helm-ag-enabled) (is-projectile-enabled)) "folder" (projectile-suffix)))
 
 (defun project-header ()
+  "The header for the \"swoop\" hydra head."
   (head-header (and (is-helm-ag-enabled) (is-projectile-enabled)) "project" (projectile-suffix)))
 
 (defun head-header (is-enabled name suffix)
   "Get the string for the head.
 
-`IS-ENABLED' should be a boolean. `NAME' should be the name of the head."
+`IS-ENABLED' should be a boolean. `NAME' should be the name of the head.
+`SUFFIX' should be the string to append to the header, either the empty
+string or a string indicating that `NAME' is disabled."
   (if is-enabled name
     (format "%s%s"
             (propertize name 'face disabled-head-face) suffix)))
 
 (defun header-extra--s ()
-  "Returns a string with 0 or more '-' characters."
+  "Return a string with 0 or more '-' characters."
   (let ((col-3 (max (length (iedit-suffix)) (length (swoop-suffix))))
         (col-4 (length (projectile-suffix))))
     (make-string (+ col-3 col-4) ?-)))
 
 (defun header-col-3-extra-spaces ()
-  "Returns a string with 0 or more ' ' characters."
+  "Return a string with 0 or more ' ' characters."
   (make-string (length (projectile-suffix)) ? ))
 
 (defun swoop ()
-  "Perform helm-swoop on the current symbol."
+  "Perform `helm-swoop' on the current symbol."
   (interactive)
   (if (is-swoop-enabled)
       (call-interactively 'helm-swoop)
@@ -414,7 +420,7 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
    (error-not-installed "iedit")))
 
 (defun projectile-helm-ag (arg query)
-  "Run helm-do-ag relative to the project root, searching for `QUERY'.
+  "Run `helm-do-ag' relative to the project root, searching for `QUERY'.
 
   Or, with prefix arg `ARG', search relative to the current directory."
   (interactive "P")
