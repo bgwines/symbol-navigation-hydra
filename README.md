@@ -14,11 +14,10 @@ With your cursor anywhere on a symbol (no need to select it), bring up the hydra
 
 * Navigation
     * _n_ and _p_ move the cursor to the next and previous instance of the symbol, respectively
-    * _d_ and _D_ move the cursor to the next and previous definitions of the symbol, respectively.
                   For example, you may define multiple variables with the same name across multiple
                   functions.
-    * _r_ selects another range. There are only three, so at most you need to hit it twice.
     * _R_ moves the cursor back to where it was when you activated the hydra.
+    * _r_ selects another range. There are only three, so at most you need to hit it twice.
     * _z_ vertically centers the current line. This is like the Emacs command `recenter-top-bottom` -
           usually `C-l` - but within the hydra.
 * Search

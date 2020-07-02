@@ -85,16 +85,13 @@
 %s(header)
 ^ ^       Navigation ^ ^          ^^^^Search^%s(header-col-3-extra-spaces)         ^Multi^
 ^^^^^^^^^^^^---------------------------------%s(header-extra--s)--------------------^^^^^^^^^^^^^^^^
-_n_^^^^: next        _z_: recenter    _f_: folder%s(projectile-suffix)      _e_: iedit%s(iedit-suffix)
-_N_/_p_: previous^^  _R_: reset       _g_: project%s(projectile-suffix)     _s_: swoop%s(swoop-suffix)
-_d_^^^^: prevdef     _r_: range
-_D_^^^^: nextdef     _q_: cancel
+_n_^^^^: next        _z_: recenter  _f_: folder%s(projectile-suffix)      _e_: iedit%s(iedit-suffix)
+_N_/_p_: previous^^  _r_: range     _g_: project%s(projectile-suffix)     _s_: swoop%s(swoop-suffix)
+_R_: reset       ^^^^_q_: cancel
 %s(footer)"
   ("n" move-point-one-symbol-forward)
   ("N" move-point-one-symbol-backward)
   ("p" move-point-one-symbol-backward)
-  ("d" move-point-forward-to-definition)
-  ("D" move-point-backward-to-definition)
   ("r" ahs-change-range)
   ("R" back-to-start)
   ("z" (progn (recenter-top-bottom) (ahs)))
@@ -357,25 +354,6 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
   (ahs-highlight-now)
   (ahs-hydra/body)
   )
-
-(defun move-point-forward-to-definition ()
-  "Move to the next occurrence of symbol under point."
-  (interactive)
-  (move-point-to-definition t))
-
-(defun move-point-backward-to-definition ()
-  "Move to the previous occurrence of symbol under point."
-  (interactive)
-  (move-point-to-definition nil))
-
-(defun move-point-to-definition (forward)
-  "Move to the previous or next occurrence of the symbol under point.
-
-  If `FORWARD' is non-nil, move forwards, otherwise, move backwards."
-  (progn
-    (ahs-highlight-now)
-    (ahs-hydra/body)
-    (if forward (ahs-forward-definition) (ahs-backward-definition))))
 
 (defun move-point-one-symbol-forward ()
   "Move to the next occurrence of symbol under point."
