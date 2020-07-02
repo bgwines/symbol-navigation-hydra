@@ -83,10 +83,10 @@
 (defhydra ahs-hydra (:hint nil)
   "
 %s(header)
-^ ^       Navigation ^ ^          ^^^^Search^%s(header-col-3-extra-spaces)         ^Multi^
-^^^^^^^^^^^^---------------------------------%s(header-extra--s)--------------------^^^^^^^^^^^^^^^^
-_n_^^^^: next        _z_: recenter  _f_: folder%s(projectile-suffix)      _e_: iedit%s(iedit-suffix)
-_N_/_p_: previous^^  _r_: range     _g_: project%s(projectile-suffix)     _s_: swoop%s(swoop-suffix)
+^ ^       Navigation ^ ^        ^^^^^^Search^%s(header-col-3-extra-spaces)         ^Multi^
+^^^^^^^^^^^^---------------------------------%s(header-extra--s)------------------^^^^^^^^^^^^^^^^
+_n_^^^^: next        _z_: recenter  _f_: %s(folder-header)      _e_: %s(iedit-header)
+_N_/_p_: previous^^  _r_: range     _g_: %s(project-header)     _s_: %s(swoop-header)
 _R_: reset       ^^^^_q_: cancel
 %s(footer)"
   ("n" move-point-one-symbol-forward)
@@ -100,6 +100,32 @@ _R_: reset       ^^^^_q_: cancel
   ("f" (projectile-helm-ag t (thing-at-point 'symbol)) :exit t)
   ("g" (projectile-helm-ag nil (thing-at-point 'symbol)) :exit t)
   ("q" nil :exit t))
+
+(defface disabled-head-face
+  '((t (:foreground "#777777")))
+  "Face for disabled hydra heads."
+  :group 'auto-highlight-symbol-hydra)
+(defvar disabled-head-face 'disabled-head-face)
+
+(defun swoop-header ()
+  (head-header (is-swoop-enabled) "swoop" (swoop-suffix)))
+
+(defun iedit-header ()
+  (head-header (is-iedit-enabled) "iedit" (iedit-suffix)))
+
+(defun folder-header ()
+  (head-header (and (is-helm-ag-enabled) (is-projectile-enabled)) "folder" (projectile-suffix)))
+
+(defun project-header ()
+  (head-header (and (is-helm-ag-enabled) (is-projectile-enabled)) "project" (projectile-suffix)))
+
+(defun head-header (is-enabled name suffix)
+  "Get the string for the head.
+
+`IS-ENABLED' should be a boolean. `NAME' should be the name of the head."
+  (if is-enabled name
+    (format "%s%s"
+            (propertize name 'face disabled-head-face) suffix)))
 
 (defun header-extra--s ()
   "Returns a string with 0 or more '-' characters."
@@ -131,13 +157,14 @@ _R_: reset       ^^^^_q_: cancel
 
 This function is an aggregation of two checks because they both guard the same
 behavior in the UI."
-  (or (head-suffix (is-projectile-enabled)) (head-suffix (is-helm-ag-enabled))))
+  (head-suffix (and (is-projectile-enabled) (is-helm-ag-enabled))))
+
 
 (defun head-suffix (is-enabled)
   "Indicate disabledness if necessary.
 
 `IS-ENABLED' should be a boolean."
-  (if is-enabled "" " (disabled)"))
+  (if is-enabled "" " (?)"))
 
 (defun is-swoop-enabled ()
   "Determine whether the package is loaded."
@@ -411,8 +438,8 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 (defun error-not-installed (package-name)
   "Raise an error.
 
-`PACKAGE-NAME' should bethe name of the package that isn't installed."
-  (error (format "%s not installed" package-name)))
+`PACKAGE-NAME' should be the name of the package that isn't installed."
+  (error (format "%s not installed. See Auto-Highlight Symbol Hydra README.md" package-name)))
 
 (provide 'auto-highlight-symbol-hydra)
 
