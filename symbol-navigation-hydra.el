@@ -342,7 +342,7 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
       'ahs-range-beginning-of-defun
       'ahs-range-whole-buffer
       'ahs-range-display"
-  (let* ((occurrences (get-occurrences plugin))
+  (let* ((occurrences (symbol-navigation-hydra-get-occurrences plugin))
          (occurrence-index
           (if occurrences
               (+ 1 (symbol-navigation-hydra-get-occurrence-index occurrences))
