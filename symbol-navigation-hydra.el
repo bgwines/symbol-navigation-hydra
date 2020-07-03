@@ -37,6 +37,9 @@
 
 ;;; Code:
 
+(require 'hydra)
+(require 'auto-highlight-symbol)
+
 (defgroup symbol-navigation-hydra nil
   "The Symbol Navigation Hydra"
   :group 'convenience
