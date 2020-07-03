@@ -63,7 +63,7 @@ By default, only the navigation functionality is enabled. The remaining heads ar
 ### Activating
 
 ```elisp
-;; in your .emacs file or equivalent
+;; in your .emacs.d/init.el file or equivalent
 (require 'symbol-navigation-hydra)
 
 ;; if you're not using Doom, you also need the following
