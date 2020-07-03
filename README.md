@@ -75,7 +75,7 @@ By default, only the navigation functionality is enabled. The remaining heads ar
 
 ```elisp
 ;; You'll want a keystroke for bringing up the hydra.
-(global-set-key (kbd "something") 'engage-symbol-navigation-hydra)
+(global-set-key (kbd "something") 'symbol-navigation-hydra-engage-hydra)
 
 ;; Be case-sensitive, since you are probably using this for code.
 (setq-default ahs-case-fold-search nil)
@@ -103,6 +103,14 @@ You may also wish to customize some other variables from the [Auto Highlight Sym
 ## Differences with the Spacemacs AHS Hydra
 
 The most prominent difference is simultaneous display of all three overlay counts, instead of just one. The _d_ and _D_ keys are removed since the Auto Highlight Symbol implementation wasn't as accurate as I'd like. The _b_ key is not supported since I didn't find it useful (tracked in a Github issue).
+
+## Licence
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.
 
 ## Other
 

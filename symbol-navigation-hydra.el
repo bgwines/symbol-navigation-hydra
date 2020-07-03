@@ -1,10 +1,10 @@
-;;; symbol-navigation-hydra.el --- A hydra for navigation (and more!) -*- lexical-binding: t; -*-
+;;; symbol-navigation-hydra.el --- A hydra for navigation -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  Brett Wines
 
 ;; Author: Brett Wines <bgwines@cs.stanford.edu>
 ;; Keywords: highlight face match convenience hydra symbol
-;; Package-Requires: (auto-highlight-symbol hydra)
+;; Package-Requires: ((auto-highlight-symbol "1.53") (hydra "0.15.0") (emacs "24.4"))
 ;; URL: https://github.com/bgwines/symbol-navigation-hydra
 ;; Version: 0.0.1
 
@@ -49,31 +49,31 @@
                                         "https://github.com/bgwines/"
                                         "symbol-navigation-hydra"))))
 
-(defcustom sn-hydra-display-legend nil
+(defcustom symbol-navigation-hydra-display-legend nil
   "*Non-nil means suppress the KEY legend."
   :group 'symbol-navigation-hydra
   :type 'boolean)
 
-(defface ahs-plugin-display-face-dim
+(defface symbol-navigation-hydra-ahs-plugin-display-face-dim
   '((t (:foreground "#eeeeee" :background "#3a2303")))
   "Dimmer version of the Display face."
   :group 'symbol-navigation-hydra)
-(defvar ahs-plugin-display-face-dim 'ahs-plugin-display-face-dim)
+(defvar symbol-navigation-hydra-ahs-plugin-display-face-dim 'symbol-navigation-hydra-ahs-plugin-display-face-dim)
 
-(defface ahs-plugin-whole-buffer-face-dim
+(defface symbol-navigation-hydra-ahs-plugin-whole-buffer-face-dim
   '((t (:foreground "#eeeeee" :background "#182906")))
   "Dimmer version of the Buffer face."
   :group 'symbol-navigation-hydra)
-(defvar ahs-plugin-whole-buffer-face-dim 'ahs-plugin-whole-buffer-face-dim)
+(defvar symbol-navigation-hydra-ahs-plugin-whole-buffer-face-dim 'symbol-navigation-hydra-ahs-plugin-whole-buffer-face-dim)
 
-(defface ahs-plugin-beginning-of-defun-face-dim
+(defface symbol-navigation-hydra-ahs-plugin-beginning-of-defun-face-dim
   '((t (:foreground "#eeeeee" :background "#0b2d5c")))
   "Dimmer version of the Function face."
   :group 'symbol-navigation-hydra)
-(defvar ahs-plugin-beginning-of-defun-face-dim 'ahs-plugin-beginning-of-defun-face-dim)
+(defvar symbol-navigation-hydra-ahs-plugin-beginning-of-defun-face-dim 'symbol-navigation-hydra-ahs-plugin-beginning-of-defun-face-dim)
 
 ;; Buffer-local variables
-(defvar sn-hydra-point-at-invocation nil)
+(defvar symbol-navigation-hydra-point-at-invocation nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; displaying the hydra ;;
@@ -82,48 +82,48 @@
 ;;;###autoload (autoload 'sn-hydra/body "symbol-navigation-hydra.el" nil nil)
 (defhydra sn-hydra (:hint nil)
   "
-%s(header)
-^ ^       Navigation ^ ^        ^^^^^^Search^%s(header-col-3-extra-spaces)         ^Multi^
-^^^^^^^^^^^^---------------------------------%s(header-extra--s)------------------^^^^^^^^^^^^^^^^
-_n_^^^^: next        _z_: recenter  _f_: %s(folder-header)      _e_: %s(iedit-header)
-_N_/_p_: previous^^  _r_: range     _g_: %s(project-header)     _s_: %s(swoop-header)
+%s(symbol-navigation-hydra-header)
+^ ^       Navigation ^ ^        ^^^^^^Search^%s(symbol-navigation-hydra-header-col-3-extra-spaces)         ^Multi^
+^^^^^^^^^^^^---------------------------------%s(symbol-navigation-hydra-header-extra--s)------------------^^^^^^^^^^^^^^^^
+_n_^^^^: next        _z_: recenter  _f_: %s(symbol-navigation-hydra-folder-header)      _e_: %s(symbol-navigation-hydra-iedit-header)
+_N_/_p_: previous^^  _r_: range     _g_: %s(symbol-navigation-hydra-project-header)     _s_: %s(symbol-navigation-hydra-swoop-header)
 _R_: reset       ^^^^_q_: cancel
-%s(footer)"
-  ("n" move-point-one-symbol-forward)
-  ("N" move-point-one-symbol-backward)
-  ("p" move-point-one-symbol-backward)
+%s(symbol-navigation-hydra-footer)"
+  ("n" symbol-navigation-hydra-move-point-one-symbol-forward)
+  ("N" symbol-navigation-hydra-move-point-one-symbol-backward)
+  ("p" symbol-navigation-hydra-move-point-one-symbol-backward)
   ("r" ahs-change-range)
-  ("R" back-to-start)
+  ("R" symbol-navigation-hydra-back-to-start)
   ("z" (progn (recenter-top-bottom) (ahs-highlight-now) (sn-hydra/body)))
-  ("e" engage-iedit :exit t)
-  ("s" swoop :exit t)
-  ("f" (projectile-helm-ag t (thing-at-point 'symbol)) :exit t)
-  ("g" (projectile-helm-ag nil (thing-at-point 'symbol)) :exit t)
+  ("e" symbol-navigation-hydra-engage-iedit :exit t)
+  ("s" symbol-navigation-hydra-swoop :exit t)
+  ("f" (symbol-navigation-hydra-projectile-helm-ag t (thing-at-point 'symbol)) :exit t)
+  ("g" (symbol-navigation-hydra-projectile-helm-ag nil (thing-at-point 'symbol)) :exit t)
   ("q" nil :exit t))
 
-(defface disabled-head-face
+(defface symbol-navigation-hydra-disabled-head-face
   '((t (:foreground "#777777")))
   "Face for disabled hydra heads."
   :group 'symbol-navigation-hydra)
-(defvar disabled-head-face 'disabled-head-face)
+(defvar symbol-navigation-hydra-disabled-head-face 'symbol-navigation-hydra-disabled-head-face)
 
-(defun swoop-header ()
+(defun symbol-navigation-hydra-swoop-header ()
   "The header for the \"swoop\" hydra head."
-  (head-header (is-swoop-enabled) "swoop" (swoop-suffix)))
+  (symbol-navigation-hydra-head-header (symbol-navigation-hydra-is-swoop-enabled) "swoop" (symbol-navigation-hydra-swoop-suffix)))
 
-(defun iedit-header ()
+(defun symbol-navigation-hydra-iedit-header ()
   "The header for the \"swoop\" hydra head."
-  (head-header (is-iedit-enabled) "iedit" (iedit-suffix)))
+  (symbol-navigation-hydra-head-header (symbol-navigation-hydra-is-iedit-enabled) "iedit" (symbol-navigation-hydra-iedit-suffix)))
 
-(defun folder-header ()
+(defun symbol-navigation-hydra-folder-header ()
   "The header for the \"swoop\" hydra head."
-  (head-header (and (is-helm-ag-enabled) (is-projectile-enabled)) "folder" (projectile-suffix)))
+  (symbol-navigation-hydra-head-header (and (symbol-navigation-hydra-is-helm-ag-enabled) (symbol-navigation-hydra-is-projectile-enabled)) "folder" (symbol-navigation-hydra-projectile-suffix)))
 
-(defun project-header ()
+(defun symbol-navigation-hydra-project-header ()
   "The header for the \"swoop\" hydra head."
-  (head-header (and (is-helm-ag-enabled) (is-projectile-enabled)) "project" (projectile-suffix)))
+  (symbol-navigation-hydra-head-header (and (symbol-navigation-hydra-is-helm-ag-enabled) (symbol-navigation-hydra-is-projectile-enabled)) "project" (symbol-navigation-hydra-projectile-suffix)))
 
-(defun head-header (is-enabled name suffix)
+(defun symbol-navigation-hydra-head-header (is-enabled name suffix)
   "Get the string for the head.
 
 `IS-ENABLED' should be a boolean. `NAME' should be the name of the head.
@@ -131,64 +131,64 @@ _R_: reset       ^^^^_q_: cancel
 string or a string indicating that `NAME' is disabled."
   (if is-enabled name
     (format "%s%s"
-            (propertize name 'face disabled-head-face) suffix)))
+            (propertize name 'face symbol-navigation-hydra-disabled-head-face) suffix)))
 
-(defun header-extra--s ()
+(defun symbol-navigation-hydra-header-extra--s ()
   "Return a string with 0 or more '-' characters."
-  (let ((col-3 (max (length (iedit-suffix)) (length (swoop-suffix))))
-        (col-4 (length (projectile-suffix))))
+  (let ((col-3 (max (length (symbol-navigation-hydra-iedit-suffix)) (length (symbol-navigation-hydra-swoop-suffix))))
+        (col-4 (length (symbol-navigation-hydra-projectile-suffix))))
     (make-string (+ col-3 col-4) ?-)))
 
-(defun header-col-3-extra-spaces ()
+(defun symbol-navigation-hydra-header-col-3-extra-spaces ()
   "Return a string with 0 or more ' ' characters."
-  (make-string (length (projectile-suffix)) ? ))
+  (make-string (length (symbol-navigation-hydra-projectile-suffix)) ? ))
 
-(defun swoop ()
+(defun symbol-navigation-hydra-swoop ()
   "Perform `helm-swoop' on the current symbol."
   (interactive)
-  (if (is-swoop-enabled)
+  (if (symbol-navigation-hydra-is-swoop-enabled)
       (call-interactively 'helm-swoop)
-    (error-not-installed "helm-swoop")))
+    (symbol-navigation-hydra-error-not-installed "helm-swoop")))
 
-(defun swoop-suffix ()
+(defun symbol-navigation-hydra-swoop-suffix ()
   "Indicate disabledness if necessary."
-  (head-suffix (is-swoop-enabled)))
+  (symbol-navigation-hydra-head-suffix (symbol-navigation-hydra-is-swoop-enabled)))
 
-(defun iedit-suffix ()
+(defun symbol-navigation-hydra-iedit-suffix ()
   "Indicate disabledness if necessary."
-  (head-suffix (is-iedit-enabled)))
+  (symbol-navigation-hydra-head-suffix (symbol-navigation-hydra-is-iedit-enabled)))
 
-(defun projectile-suffix ()
+(defun symbol-navigation-hydra-projectile-suffix ()
   "Indicate disabledness if necessary.
 
 This function is an aggregation of two checks because they both guard the same
 behavior in the UI."
-  (head-suffix (and (is-projectile-enabled) (is-helm-ag-enabled))))
+  (symbol-navigation-hydra-head-suffix (and (symbol-navigation-hydra-is-projectile-enabled) (symbol-navigation-hydra-is-helm-ag-enabled))))
 
 
-(defun head-suffix (is-enabled)
+(defun symbol-navigation-hydra-head-suffix (is-enabled)
   "Indicate disabledness if necessary.
 
 `IS-ENABLED' should be a boolean."
   (if is-enabled "" " (?)"))
 
-(defun is-swoop-enabled ()
+(defun symbol-navigation-hydra-is-swoop-enabled ()
   "Determine whether the package is loaded."
   (fboundp 'helm-swoop))
 
-(defun is-iedit-enabled ()
+(defun symbol-navigation-hydra-is-iedit-enabled ()
   "Determine whether the package is loaded."
   (fboundp 'iedit-mode))
 
-(defun is-projectile-enabled ()
+(defun symbol-navigation-hydra-is-projectile-enabled ()
   "Determine whether the package is loaded."
   (fboundp 'projectile-mode))
 
-(defun is-helm-ag-enabled ()
+(defun symbol-navigation-hydra-is-helm-ag-enabled ()
   "Determine whether the package is loaded."
   (fboundp 'helm-do-ag))
 
-(defun header ()
+(defun symbol-navigation-hydra-header ()
   "This is the user-visible header at the top of the hydra.
 
 It is comprised of
@@ -197,50 +197,47 @@ It is comprised of
   (let* ((i 0)
          (overlay-count (length ahs-overlay-list))
          (overlay (format "%s" (nth i ahs-overlay-list)))
-         (current-overlay (format "%s" ahs-current-overlay))
-         )
+         (current-overlay (format "%s" ahs-current-overlay)))
 
-    (defun is-active (plugin)
+    (defun symbol-navigation-hydra-is-active (plugin)
       (string= (ahs-get-plugin-prop 'lighter plugin) (ahs-current-plugin-prop 'lighter)))
 
-    (defun darken-plugin-face (face)
-        (cond ((eq face ahs-plugin-defalt-face) 'ahs-plugin-display-face-dim)
-              ((eq face ahs-plugin-whole-buffer-face) 'ahs-plugin-whole-buffer-face-dim)
-              ((eq face ahs-plugin-bod-face) 'ahs-plugin-beginning-of-defun-face-dim)))
+    (defun symbol-navigation-hydra-darken-plugin-face (face)
+        (cond ((eq face ahs-plugin-defalt-face) 'symbol-navigation-hydra-ahs-plugin-display-face-dim)
+              ((eq face ahs-plugin-whole-buffer-face) 'symbol-navigation-hydra-ahs-plugin-whole-buffer-face-dim)
+              ((eq face ahs-plugin-bod-face) 'symbol-navigation-hydra-ahs-plugin-beginning-of-defun-face-dim)
+              (t (error (format "Unknown face: %s" face)))))
 
-    (defun plugin-color (plugin)
+    (defun symbol-navigation-hydra-plugin-color (plugin)
       (let ((face (ahs-get-plugin-prop 'face plugin)))
-        (if (is-active plugin) face (darken-plugin-face face))))
+        (if (symbol-navigation-hydra-is-active plugin) face (symbol-navigation-hydra-darken-plugin-face face))))
 
-    (defun get-active-x/y ()
+    (defun symbol-navigation-hydra-get-active-xy ()
       (while (not (string= overlay current-overlay))
         (setq i (1+ i))
         (setq overlay (format "%s" (nth i ahs-overlay-list))))
       (format "[%s/%s]" (- overlay-count i) overlay-count))
 
-    (defun plugin-component (plugin)
-      (let ((name (propertize (get-plugin-display-name plugin)
-                               'face (plugin-color plugin)))
-             (x/y (if (is-active plugin) (get-active-x/y) (get-plugin-x/y plugin)))
-             )
-        (concat name x/y)))
+    (defun symbol-navigation-hydra-plugin-component (plugin)
+      (let ((name (propertize (symbol-navigation-hydra-get-plugin-display-name plugin)
+                               'face (symbol-navigation-hydra-plugin-color plugin)))
+             (xy (if (symbol-navigation-hydra-is-active plugin) (symbol-navigation-hydra-get-active-xy) (symbol-navigation-hydra-get-plugin-xy plugin))))
+        (concat name xy)))
 
     (concat
      (propertize "SN Hydra" 'face `(:box t :weight bold)) "   "
-     (plugin-component 'ahs-range-beginning-of-defun) "  "
-     (plugin-component 'ahs-range-whole-buffer) "  "
-     (plugin-component 'ahs-range-display)
-     ))
-  )
+     (symbol-navigation-hydra-plugin-component 'ahs-range-beginning-of-defun) "  "
+     (symbol-navigation-hydra-plugin-component 'ahs-range-whole-buffer) "  "
+     (symbol-navigation-hydra-plugin-component 'ahs-range-display))))
 
-(defun get-plugin-display-name (plugin)
+(defun symbol-navigation-hydra-get-plugin-display-name (plugin)
   "Get the user-visible name for `PLUGIN'."
   (cond
    ((eq plugin 'ahs-range-beginning-of-defun) "Function")
    ((eq plugin 'ahs-range-whole-buffer) "Buffer")
    ((eq plugin 'ahs-range-display) "Display")))
 
-(defun get-plugin-search-range (symbol plugin)
+(defun symbol-navigation-hydra-get-plugin-search-range (symbol plugin)
   "Compute the pair of integers within which to search for `SYMBOL'.
 
 The range is dependent on the user-selected range, which is `PLUGIN'.
@@ -258,7 +255,7 @@ The range is dependent on the user-selected range, which is `PLUGIN'.
           ((> beg end) nil)
           (t (cons beg end)))))
 
-(defun get-occurrences-within-range (symbol search-range)
+(defun symbol-navigation-hydra-get-occurrences-within-range (symbol search-range)
   "Search for `SYMBOL' in `SEARCH-RANGE'.
 
 `SEARCH-RANGE' should be a pair of integers representing indexes of characters."
@@ -278,7 +275,7 @@ The range is dependent on the user-selected range, which is `PLUGIN'.
             (push (list symbol-beg symbol-end) occurrences))))
       occurrences)))
 
-(defun get-occurrences (plugin)
+(defun symbol-navigation-hydra-get-occurrences (plugin)
   "Look up all instances of the currently focused symbol.
 
 These will be instances only within the range specified by
@@ -296,14 +293,14 @@ The returnvalue is a list of pairs of integers. The integers are indexes
 of characters, as in
 https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
   (let* ((symbol (thing-at-point 'symbol))
-         (search-range (get-plugin-search-range symbol plugin)))
+         (search-range (symbol-navigation-hydra-get-plugin-search-range symbol plugin)))
     (if symbol
         (if (consp search-range)
-            (get-occurrences-within-range symbol search-range)
+            (symbol-navigation-hydra-get-occurrences-within-range symbol search-range)
           nil) ;; couldn't determine the number of occurrences in the range
       nil))) ;; cursor is not on a symbol, so there are 0 occurrences
 
-(defun get-occurrence-index (occurrences)
+(defun symbol-navigation-hydra-get-occurrence-index (occurrences)
   "Compute the index of the occurrence of the currently focused symbol.
 
 For example, for the code in this function, the string
@@ -332,10 +329,9 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
                 (not (string= overlay current-overlay)))
         (setq i (1+ i))
         (setq overlay (format "%s" (nth i occurrences))))
-      i
-  ))
+      i))
 
-(defun get-plugin-x/y (plugin)
+(defun symbol-navigation-hydra-get-plugin-xy (plugin)
   "For plugin `PLUGIN', computes the overlay counts.
 
   The first number represents which occurrence of the currently focused symbol
@@ -349,30 +345,28 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
   (let* ((occurrences (get-occurrences plugin))
          (occurrence-index
           (if occurrences
-              (+ 1 (get-occurrence-index occurrences))
+              (+ 1 (symbol-navigation-hydra-get-occurrence-index occurrences))
             0))) ;; if 0 occurrences, don't increment 0
     (format "[%s/%s]" occurrence-index (length occurrences))))
 
-(defun footer ()
+(defun symbol-navigation-hydra-footer ()
   "This is the string to be (optionally) displayed at the bottom of the hydra."
-  (if sn-hydra-display-legend
+  (if symbol-navigation-hydra-display-legend
       (let ((guide
             (concat
              "[" (propertize "KEY" 'face 'hydra-face-blue) "] exits state "
-             "[" (propertize "KEY" 'face 'hydra-face-red) "] will not exit"
-             )))
+             "[" (propertize "KEY" 'face 'hydra-face-red) "] will not exit")))
         (add-face-text-property 0 (length guide) 'italic t guide)
         guide)
     ""))
 
 ;;;###autoload
-(defun engage-symbol-navigation-hydra ()
+(defun symbol-navigation-hydra-engage-hydra ()
   "Trigger the hydra."
   (interactive)
-  (setq sn-hydra-point-at-invocation (point))
+  (setq symbol-navigation-hydra-point-at-invocation (point))
   (unless (bound-and-true-p ahs-mode-line)
-    (auto-highlight-symbol-mode)
-    )
+    (auto-highlight-symbol-mode))
   (ahs-highlight-now)
   (sn-hydra/body))
 
@@ -380,26 +374,25 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 ;; heads ;;
 ;;;;;;;;;;;
 
-(defun back-to-start ()
+(defun symbol-navigation-hydra-back-to-start ()
   "Move `point' to the location it was upon user-initiated hydra invocation."
   (interactive)
-  (goto-char sn-hydra-point-at-invocation)
+  (goto-char symbol-navigation-hydra-point-at-invocation)
   (recenter-top-bottom)
   (ahs-highlight-now)
-  (sn-hydra/body)
-  )
+  (sn-hydra/body))
 
-(defun move-point-one-symbol-forward ()
+(defun symbol-navigation-hydra-move-point-one-symbol-forward ()
   "Move to the next occurrence of symbol under point."
   (interactive)
-  (move-point-one-symbol t))
+  (symbol-navigation-hydra-move-point-one-symbol t))
 
-(defun move-point-one-symbol-backward ()
+(defun symbol-navigation-hydra-move-point-one-symbol-backward ()
   "Move to the previous occurrence of symbol under point."
   (interactive)
-  (move-point-one-symbol nil))
+  (symbol-navigation-hydra-move-point-one-symbol nil))
 
-(defun move-point-one-symbol (forward)
+(defun symbol-navigation-hydra-move-point-one-symbol (forward)
   "Move to the previous or next occurrence of the symbol under point.
 
   If `FORWARD' is non-nil, move forwards, otherwise, move backwards."
@@ -408,24 +401,24 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
     (sn-hydra/body)
     (if forward (ahs-forward) (ahs-backward))))
 
-(defun engage-iedit ()
+(defun symbol-navigation-hydra-engage-iedit ()
   "Trigger iedit."
   (interactive)
-  (if (is-iedit-enabled)
+  (if (symbol-navigation-hydra-is-iedit-enabled)
    (progn
     (iedit-mode)
     (iedit-restrict-region (ahs-current-plugin-prop 'start)
                            (ahs-current-plugin-prop 'end))
     (ahs-edit-mode t))
-   (error-not-installed "iedit")))
+   (symbol-navigation-hydra-error-not-installed "iedit")))
 
-(defun projectile-helm-ag (arg query)
+(defun symbol-navigation-hydra-projectile-helm-ag (arg query)
   "Run `helm-do-ag' relative to the project root, searching for `QUERY'.
 
   Or, with prefix arg `ARG', search relative to the current directory."
   (interactive "P")
-  (if (is-projectile-enabled)
-      (if (is-helm-ag-enabled)
+  (if (symbol-navigation-hydra-is-projectile-enabled)
+      (if (symbol-navigation-hydra-is-helm-ag-enabled)
           (if arg
               (progn
                 ;; Have to kill the prefix arg so it doesn't get forwarded
@@ -434,15 +427,12 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 
                 (if dired-directory
                     (helm-do-ag dired-directory nil query)
-                  (helm-do-ag (file-name-directory (buffer-file-name)) nil query)
-                  )
-                )
-            (helm-do-ag (projectile-project-root) nil query)
-            )
-        (error-not-installed "helm-ag"))
-    (error-not-installed "projectile")))
+                  (helm-do-ag (file-name-directory (buffer-file-name)) nil query)))
+            (helm-do-ag (projectile-project-root) nil query))
+        (symbol-navigation-hydra-error-not-installed "helm-ag"))
+    (symbol-navigation-hydra-error-not-installed "projectile")))
 
-(defun error-not-installed (package-name)
+(defun symbol-navigation-hydra-error-not-installed (package-name)
   "Raise an error.
 
 `PACKAGE-NAME' should be the name of the package that isn't installed."
