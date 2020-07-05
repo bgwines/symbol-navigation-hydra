@@ -32,7 +32,7 @@ With your cursor anywhere on a symbol (no need to select it), bring up the hydra
 
 ### Installing (for most Emacs distributions)
 
-Install this package via MELPA.
+This package is in the process of submission to MELPA.
 
 Alternately, clone a) this repo b) [hydra](https://github.com/abo-abo/hydra) c) [auto-highlight-symbol](https://github.com/mhayashi1120/auto-highlight-symbol-mode) and put them all in your Emacs `load-path`:
 
