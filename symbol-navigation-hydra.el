@@ -93,7 +93,7 @@ _R_: reset       ^^^^_q_: cancel
   ("n" symbol-navigation-hydra-move-point-one-symbol-forward)
   ("N" symbol-navigation-hydra-move-point-one-symbol-backward)
   ("p" symbol-navigation-hydra-move-point-one-symbol-backward)
-  ("r" ahs-change-range)
+  ("r" symbol-navigation-hydra-change-range)
   ("R" symbol-navigation-hydra-back-to-start)
   ("z" (progn (recenter-top-bottom) (ahs-highlight-now) (sn-hydra/body)))
   ("e" symbol-navigation-hydra-engage-iedit :exit t)
@@ -110,6 +110,11 @@ _R_: reset       ^^^^_q_: cancel
   :group 'symbol-navigation-hydra)
 (defvar symbol-navigation-hydra-disabled-head-face
   'symbol-navigation-hydra-disabled-head-face)
+
+(defun symbol-navigation-hydra-change-range ()
+  "Head for changing the range."
+  (interactive)
+  (call-interactively #'ahs-change-range))
 
 (defun symbol-navigation-hydra-swoop-header ()
   "The header for the \"swoop\" hydra head."
