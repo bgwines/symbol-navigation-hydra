@@ -199,7 +199,7 @@ behavior in the UI."
 
 (defun symbol-navigation-hydra-is-iedit-enabled ()
   "Determine whether the package is loaded."
-  (fboundp 'iedit-mode))
+  (and (fboundp 'iedit-mode) (fboundp 'iedit-restrict-region)))
 
 (defun symbol-navigation-hydra-is-projectile-enabled ()
   "Determine whether the package is loaded."
