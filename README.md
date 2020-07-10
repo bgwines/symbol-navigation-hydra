@@ -58,6 +58,7 @@ By default, only the navigation functionality is enabled. The remaining heads ar
 * [`iedit`](https://github.com/victorhge/iedit)
 * [`helm-swoop`](https://github.com/emacsorphanage/helm-swoop)
 * [`helm-ag`](https://github.com/emacsorphanage/helm-ag)
+    * [The Silver Searcher](https://github.com/ggreer/the_silver_searcher)
 * [`projectile`](https://github.com/bbatsov/projectile)
 
 ### Activating
