@@ -333,8 +333,10 @@ The returnvalue is a list of pairs of integers. The integers are indexes
 of characters, as in
 https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
   (let* ((symbol (thing-at-point 'symbol))
-         (search-range (symbol-navigation-hydra-get-plugin-search-range
-                        symbol plugin)))
+         (search-range (if symbol
+                           (symbol-navigation-hydra-get-plugin-search-range
+                            symbol plugin)
+                         nil)))
     (if symbol
         (if (consp search-range)
             (symbol-navigation-hydra-get-occurrences-within-range
