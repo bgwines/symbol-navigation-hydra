@@ -20,13 +20,20 @@ With your cursor anywhere on a symbol (no need to select it), bring up the hydra
     * _r_ selects another range. There are only three, so at most you need to hit it twice.
     * _z_ vertically centers the current line. This is like the Emacs command `recenter-top-bottom` -
           usually `C-l` - but within the hydra.
+* Multi
+    * _f_ drops a cursor at the current location, and moves forward to the next occurrence of the symbol
+          within the range. After this, you will have at least two cursors active.
+    * _b_ drops a cursor at the current location, and moves backward to the previous occurrence of the symbol
+          within the range. After this, you will have at least two cursors active.
+    * _e_ exits the hydra and preserves all cursors. This is the way to exit when they want to exit the
+          hydra and start editing your buffer again, but with the multiple cursors active. All other ways
+          of exiting the hydra will clear the cursors.
+    * _a_ places cursors at every instance of the symbol in the range.
+    * _s_ activates [Helm Swoop](https://github.com/emacsorphanage/helm-swoop), with the current symbol
+          as the search query. This is not range-aware.
 * Search
-    * _f_ and _g_ search for the symbol in the current directory and Projectile project, respectively.
+    * _d_ and _g_ search for the symbol in the current directory and Projectile project, respectively.
                   This is not a function of the current range.
-* Multi-occurrence
-    * _e_ places multiple cursors on every instance of the symbol. This is range-aware.
-    * _s_ activates [Helm Swoop](https://github.com/emacsorphanage/helm-swoop) on the symbol. This
-          is not range-aware.
 
 ## Setup
 
@@ -48,18 +55,17 @@ Alternately, clone a) this repo b) [hydra](https://github.com/abo-abo/hydra) c) 
 (package! symbol-navigation-hydra :recipe
   '(:host github
     :repo "bgwines/symbol-navigation-hydra"))
-
 ```
 
 ### Installing (additional functionality)
 
 By default, only the navigation functionality is enabled. The remaining heads are disabled so as to not bloat the user's setup by installing a bunch of dependencies when installing this package. The following packages are optional, but enable features that are disabled otherwise:
 
-* [`iedit`](https://github.com/victorhge/iedit)
 * [`helm-swoop`](https://github.com/emacsorphanage/helm-swoop)
 * [`helm-ag`](https://github.com/emacsorphanage/helm-ag)
     * [The Silver Searcher](https://github.com/ggreer/the_silver_searcher)
 * [`projectile`](https://github.com/bbatsov/projectile)
+* [`multiple-cursors`](https://github.com/magnars/multiple-cursors.el)
 
 ### Activating
 
@@ -86,6 +92,10 @@ By default, only the navigation functionality is enabled. The remaining heads ar
 
 ;; Disable symbol highlighting when the hydra is not active (yes, this is a hack 😅).
 (setq-default ahs-idle-interval 999999999.0)
+
+;; Defaults for multiple cursor behavior
+(setq-default mc/always-repeat-command t)
+(setq-default mc/always-run-for-all t)
 
 ;; Many - but not all - languages are supported by default. You'll probably get pretty good
 ;; behavior by just opting one in if it's not already there.
