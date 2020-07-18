@@ -2,7 +2,7 @@
 
 This package is an Emacs [hydra](https://github.com/abo-abo/hydra) inspired by the [Spacemacs AHS Transient State](https://develop.spacemacs.org/doc/DOCUMENTATION.html#highlight-current-symbol). It is a tool for navigating around and acting upon instances of a symbol (e.g. a function name or a keyword) within a specified range, which can be adjusted.
 
--![demo](https://github.com/bgwines/symbol-navigation-hydra/blob/master/snhydra-demo.gif)
+-![demo](https://imgur.com/E3IF7K9.png)
 
 There are three available ranges:
 
