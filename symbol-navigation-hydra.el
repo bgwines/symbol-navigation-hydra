@@ -83,6 +83,7 @@
 
 ;; Buffer-local variables
 (defvar symbol-navigation-hydra-point-at-invocation nil)
+(defvar symbol-navigation-hydra-window-start-at-invocation nil)
 (defvar symbol-navigation-hydra-allow-edit-all-head-execution nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -442,6 +443,7 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
   "Trigger the hydra."
   (interactive)
   (setq symbol-navigation-hydra-point-at-invocation (point))
+  (setq symbol-navigation-hydra-window-start-at-invocation (window-start))
   (setq symbol-navigation-hydra-allow-edit-all-head-execution t)
   (unless (bound-and-true-p ahs-mode-line)
     (auto-highlight-symbol-mode))
@@ -535,7 +537,7 @@ hydra definition."
   "Move `point' to the location it was upon user-initiated hydra invocation."
   (interactive)
   (goto-char symbol-navigation-hydra-point-at-invocation)
-  (recenter-top-bottom)
+  (set-window-start (selected-window) symbol-navigation-hydra-window-start-at-invocation)
   (ahs-highlight-now)
   (sn-hydra/body))
 
