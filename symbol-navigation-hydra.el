@@ -1,12 +1,12 @@
-;;; symbol-navigation-hydra.el --- A hydra for navigation -*- lexical-binding: t; -*-
+;;; symbol-navigation-hydra.el --- A symbol-aware, range-aware hydra -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  Brett Wines
 
 ;; Author: Brett Wines <bgwines@cs.stanford.edu>
 ;; Keywords: highlight face match convenience hydra symbol
-;; Package-Requires: ((auto-highlight-symbol "1.53") (hydra "0.15.0") (emacs "24.4"))
+;; Package-Requires: ((auto-highlight-symbol "1.53") (hydra "0.15.0") (emacs "24.4") (multiple-cursors "1.4.0"))
 ;; URL: https://github.com/bgwines/symbol-navigation-hydra
-;; Version: 0.0.1
+;; Version: 0.0.2
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -25,9 +25,16 @@
 
 ;;; Commentary:
 
-;; This package was inspired by the Spacemacs AHS Transient State, which didn't
-;; exist for non-Spacemacs <gollum voice>Emacses</gollum voice>. See the README
-;; for more details.
+;; This is a hydra that augments existing Emacs navigation/editing functionality
+;; by adding awareness of symbols and configuration of the range of focus for
+;; these operations. Its functionality can be partitioned into three categories:
+;;
+;;   1. navigation
+;;   2. multiple cursors / swooping
+;;   3. searching in a directory/project
+;;
+;; See the README for more details. Credit is due to the Spacemacs AHS Transient
+;; State for inspiring this package.
 ;;
 ;; Happy coding! ^_^
 
@@ -35,6 +42,7 @@
 
 (require 'hydra)
 (require 'auto-highlight-symbol)
+(require 'multiple-cursors)
 
 (defgroup symbol-navigation-hydra nil
   "The Symbol Navigation Hydra"
@@ -75,20 +83,21 @@
 
 ;; Buffer-local variables
 (defvar symbol-navigation-hydra-point-at-invocation nil)
+(defvar symbol-navigation-hydra-allow-edit-all-head-execution nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; displaying the hydra ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;###autoload (autoload 'sn-hydra/body "symbol-navigation-hydra.el" nil nil)
-(defhydra sn-hydra (:hint nil)
+(defhydra sn-hydra (:hint nil :color amaranth)
   "
 %s(symbol-navigation-hydra-header)
-^ ^       Navigation ^ ^        ^^^^^^Search^%s(symbol-navigation-hydra-header-col-3-extra-spaces)         ^Multi^
-^^^^^^^^^^^^---------------------------------%s(symbol-navigation-hydra-header-extra--s)------------------^^^^^^^^^^^^^^^^
-_n_^^^^: next        _z_: recenter  _f_: %s(symbol-navigation-hydra-folder-header)      _e_: %s(symbol-navigation-hydra-iedit-header)
-_N_/_p_: previous^^  _r_: range     _g_: %s(symbol-navigation-hydra-project-header)     _s_: %s(symbol-navigation-hydra-swoop-header)
-_R_: reset       ^^^^_q_: cancel
+^ ^      Navigation      ^^^^^^^^^^| ^ ^           Multi %s(symbol-navigation-hydra-get-formatted-mc-count)%s(symbol-navigation-hydra-get-col-2-spaces)|    Search
+^^^^^^^^^^^^-----------------------|-------------------------------|-------------%s(symbol-navigation-hydra-header-extra--s)
+_n_^^^^: next    _z_: recenter ^^^^| _f_: mark & next  _u_: %s(symbol-navigation-hydra-unmark-header)     | _d_: %s(symbol-navigation-hydra-folder-header)
+_N_/_p_: prev^^  _r_: range    ^^^^| _b_: mark & prev  _e_: %s(symbol-navigation-hydra-edit-marks-header) | _g_: %s(symbol-navigation-hydra-project-header)
+_R_^^^^: %s(symbol-navigation-hydra-reset-header)   _q_: quit     ^^^^| _a_: mark all     _s_: %s(symbol-navigation-hydra-swoop-header)  |
 %s(symbol-navigation-hydra-footer)"
   ("n" symbol-navigation-hydra-move-point-one-symbol-forward)
   ("N" symbol-navigation-hydra-move-point-one-symbol-backward)
@@ -96,13 +105,17 @@ _R_: reset       ^^^^_q_: cancel
   ("r" ahs-change-range)
   ("R" symbol-navigation-hydra-back-to-start)
   ("z" (progn (recenter-top-bottom) (ahs-highlight-now) (sn-hydra/body)))
-  ("e" symbol-navigation-hydra-engage-iedit :exit t)
+  ("b" symbol-navigation-hydra-mark-and-move-to-prev)
+  ("f" symbol-navigation-hydra-mark-and-move-to-next)
+  ("a" symbol-navigation-hydra-mark-all)
+  ("u" symbol-navigation-hydra-remove-fake-cursors-at-point)
+  ("e" symbol-navigation-hydra-mc-edit :exit t)
   ("s" symbol-navigation-hydra-swoop :exit t)
-  ("f" (symbol-navigation-hydra-projectile-helm-ag t (thing-at-point 'symbol))
+  ("d" (symbol-navigation-hydra-projectile-helm-ag t (thing-at-point 'symbol))
    :exit t)
   ("g" (symbol-navigation-hydra-projectile-helm-ag nil (thing-at-point 'symbol))
    :exit t)
-  ("q" nil :exit t))
+  ("q" symbol-navigation-hydra-exit :exit t))
 
 (defface symbol-navigation-hydra-disabled-head-face
   '((t (:foreground "#777777")))
@@ -111,24 +124,33 @@ _R_: reset       ^^^^_q_: cancel
 (defvar symbol-navigation-hydra-disabled-head-face
   'symbol-navigation-hydra-disabled-head-face)
 
+(defun symbol-navigation-hydra-edit-marks-header ()
+  "The header for the hydra head for exiting into MC editing."
+  (symbol-navigation-hydra-head-header
+   (symbol-navigation-hydra-are-multiple-cursors-active) "edit marks" ""))
+
+(defun symbol-navigation-hydra-unmark-header ()
+  "The header for the \"unmark\" hydra head."
+  (symbol-navigation-hydra-head-header
+   (<= 1 (symbol-navigation-hydra-get-n-fake-cursors-at-point)) "unmark" ""))
+
+(defun symbol-navigation-hydra-reset-header ()
+  "The header for the \"reset\" hydra head."
+  (symbol-navigation-hydra-head-header
+   (not (eq (point) symbol-navigation-hydra-point-at-invocation)) "reset" ""))
+
 (defun symbol-navigation-hydra-swoop-header ()
   "The header for the \"swoop\" hydra head."
   (symbol-navigation-hydra-head-header
    (symbol-navigation-hydra-is-swoop-enabled) "swoop"
    (symbol-navigation-hydra-swoop-suffix)))
 
-(defun symbol-navigation-hydra-iedit-header ()
-  "The header for the \"swoop\" hydra head."
-  (symbol-navigation-hydra-head-header
-   (symbol-navigation-hydra-is-iedit-enabled) "iedit"
-   (symbol-navigation-hydra-iedit-suffix)))
-
 (defun symbol-navigation-hydra-folder-header ()
   "The header for the \"swoop\" hydra head."
   (symbol-navigation-hydra-head-header
    (and (symbol-navigation-hydra-is-helm-ag-enabled)
         (symbol-navigation-hydra-is-projectile-enabled))
-   "folder" (symbol-navigation-hydra-projectile-suffix)))
+   "directory" (symbol-navigation-hydra-projectile-suffix)))
 
 (defun symbol-navigation-hydra-project-header ()
   "The header for the \"swoop\" hydra head."
@@ -143,40 +165,31 @@ _R_: reset       ^^^^_q_: cancel
 `IS-ENABLED' should be a boolean. `NAME' should be the name of the head.
 `SUFFIX' should be the string to append to the header, either the empty
 string or a string indicating that `NAME' is disabled."
-  (if is-enabled name
+  (if is-enabled
+      (format "%s%s" name suffix)
     (format "%s%s"
             (propertize name 'face symbol-navigation-hydra-disabled-head-face)
             suffix)))
 
 (defun symbol-navigation-hydra-header-extra--s ()
   "Return a string with 0 or more '-' characters."
-  (let ((col-3 (max (length (symbol-navigation-hydra-iedit-suffix))
-                    (length (symbol-navigation-hydra-swoop-suffix))))
-        (col-4 (length (symbol-navigation-hydra-projectile-suffix))))
-    (make-string (+ col-3 col-4) ?-)))
-
-(defun symbol-navigation-hydra-header-col-3-extra-spaces ()
-  "Return a string with 0 or more ' ' characters."
-  (make-string (length (symbol-navigation-hydra-projectile-suffix)) ? ))
+  (let ((col-3 (length (symbol-navigation-hydra-projectile-suffix))))
+    (make-string col-3 ?-)))
 
 (defun symbol-navigation-hydra-swoop ()
   "Perform `helm-swoop' on the current symbol."
   (interactive)
   ;; These are the same thing, but we need the inlined `fboundp' to satisfy
   ;; flycheck
+  (mc/keyboard-quit)
   (if (and (symbol-navigation-hydra-is-swoop-enabled) (fboundp 'helm-swoop))
       (call-interactively #'helm-swoop)
     (symbol-navigation-hydra-error-not-installed "helm-swoop")))
 
 (defun symbol-navigation-hydra-swoop-suffix ()
-  "Indicate disabledness if necessary."
-  (symbol-navigation-hydra-head-suffix
-   (symbol-navigation-hydra-is-swoop-enabled)))
-
-(defun symbol-navigation-hydra-iedit-suffix ()
-  "Indicate disabledness if necessary."
-  (symbol-navigation-hydra-head-suffix
-   (symbol-navigation-hydra-is-iedit-enabled)))
+   "Indicate disabledness if necessary."
+   (symbol-navigation-hydra-head-suffix
+    (symbol-navigation-hydra-is-swoop-enabled) t))
 
 (defun symbol-navigation-hydra-projectile-suffix ()
   "Indicate disabledness if necessary.
@@ -187,19 +200,16 @@ behavior in the UI."
    (and (symbol-navigation-hydra-is-projectile-enabled)
         (symbol-navigation-hydra-is-helm-ag-enabled))))
 
-(defun symbol-navigation-hydra-head-suffix (is-enabled)
+
+(defun symbol-navigation-hydra-head-suffix (is-enabled &optional include-spaces)
   "Indicate disabledness if necessary.
 
-`IS-ENABLED' should be a boolean."
-  (if is-enabled "" " (?)"))
+`IS-ENABLED' and `INCLUDE-SPACES' should be a booleans."
+  (if is-enabled (if include-spaces "    " "") " (?)"))
 
 (defun symbol-navigation-hydra-is-swoop-enabled ()
   "Determine whether the package is loaded."
   (fboundp 'helm-swoop))
-
-(defun symbol-navigation-hydra-is-iedit-enabled ()
-  "Determine whether the package is loaded."
-  (and (fboundp 'iedit-mode) (fboundp 'iedit-restrict-region)))
 
 (defun symbol-navigation-hydra-is-projectile-enabled ()
   "Determine whether the package is loaded."
@@ -257,6 +267,29 @@ for the current plugin."
                                                         overlay-count)
                (symbol-navigation-hydra-get-plugin-xy plugin))))
     (concat name xy)))
+
+(defun symbol-navigation-hydra-get-col-2-spaces ()
+  "Compute the spaces to go after the \"Multi\" string."
+  (make-string (- 12 (length (symbol-navigation-hydra-get-formatted-mc-count))) ? ))
+
+(defun symbol-navigation-hydra-are-multiple-cursors-active ()
+  "Fewer than 2 cursors is not \"multiple\" cursors."
+  (<= 2 (symbol-navigation-hydra-count-cursors)))
+
+(defun symbol-navigation-hydra-count-cursors ()
+  "Count the active cursors, subtracting any that overlap with `POINT'."
+  ;; + 1 to add the cursor at `POINT'
+  (- (+ 1 (length (mc/all-fake-cursors)))
+     (symbol-navigation-hydra-get-n-fake-cursors-at-point)))
+
+(defun symbol-navigation-hydra-get-formatted-mc-count ()
+  "Format the number of active cursors."
+  (let ((n-cursors (symbol-navigation-hydra-count-cursors)))
+    (if (symbol-navigation-hydra-are-multiple-cursors-active)
+        (format "(%s)"
+                (propertize (format "%s" n-cursors)
+                            'face `(:foreground "#FAAD41")))
+      "")))
 
 (defun symbol-navigation-hydra-header ()
   "This is the user-visible header at the top of the hydra.
@@ -409,6 +442,7 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
   "Trigger the hydra."
   (interactive)
   (setq symbol-navigation-hydra-point-at-invocation (point))
+  (setq symbol-navigation-hydra-allow-edit-all-head-execution t)
   (unless (bound-and-true-p ahs-mode-line)
     (auto-highlight-symbol-mode))
   (ahs-highlight-now)
@@ -417,6 +451,78 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
 ;;;;;;;;;;;
 ;; heads ;;
 ;;;;;;;;;;;
+
+(defun symbol-navigation-hydra-exit ()
+  "Clean up any state that needs to be cleaned up."
+  (interactive)
+  ;; maybe should this use `(multiple-cursors-mode 0)' directly?
+  (mc/keyboard-quit))
+
+(defun symbol-navigation-hydra-mc-edit ()
+  "Exit the hydra, so the user can start using the multiple cursors."
+  (interactive)
+  ;; variable to prevent duplicate execution via
+  ;; `mc/execute-this-command-for-all-cursors', since MC seems to listen to all
+  ;; `interactive' function executions or something
+  (when symbol-navigation-hydra-allow-edit-all-head-execution
+    ;; the current cursor may be on top of a previously dropped fake cursor.
+    ;; Remove that fake one if it exists so the user doesn't double-enter the
+    ;; inputs at `point'
+    (symbol-navigation-hydra-remove-fake-cursors-at-point t)
+    (mc/maybe-multiple-cursors-mode)
+    (setq symbol-navigation-hydra-allow-edit-all-head-execution nil)))
+
+(defun symbol-navigation-hydra-get-n-fake-cursors-at-point ()
+  "Determine whether there exist any fake cursors at `POINT'."
+  (let ((n-found 0))
+    (mc/for-each-fake-cursor
+     (let* ((cursor-beg (mc/cursor-beg cursor))
+            (is-point-min (eq (point) (min (point) cursor-beg)))
+            (is-point-max (eq (point) (max (point) cursor-beg))))
+       (when (and is-point-min is-point-max)
+         (setq n-found (+ 1 n-found)))))
+    n-found))
+
+(defun symbol-navigation-hydra-remove-fake-cursors-at-point (&optional skip-reload-hydra)
+  "Remove fake cursors if any exist.
+
+Pass t for `SKIP-RELOAD-HYDRA' if you are calling this function not from the
+hydra definition."
+  (interactive)
+  (mc/for-each-fake-cursor
+     (let* ((cursor-beg (mc/cursor-beg cursor))
+            (is-point-min (eq (point) (min (point) cursor-beg)))
+            (is-point-max (eq (point) (max (point) cursor-beg))))
+       (when (and is-point-min is-point-max)
+         (mc/remove-fake-cursor cursor))))
+  (unless skip-reload-hydra
+    (ahs-highlight-now)
+    (sn-hydra/body)))
+
+(defun symbol-navigation-hydra-mark-and-move-to-prev ()
+  "Drop a cursor at `point', and move to the previous occurrence of the symbol."
+  (interactive)
+  (unless (mc/fake-cursor-at-point)
+    (mc/create-fake-cursor-at-point))
+  (symbol-navigation-hydra-move-point-one-symbol-backward))
+
+(defun symbol-navigation-hydra-mark-and-move-to-next ()
+  "Drop a cursor at `point', and move to the next occurrence of the symbol."
+  (interactive)
+  (unless (mc/fake-cursor-at-point)
+    (mc/create-fake-cursor-at-point))
+  (symbol-navigation-hydra-move-point-one-symbol-forward))
+
+(defun symbol-navigation-hydra-mark-all ()
+  "Drop cursors every occurrence of the symbol within the range."
+  (interactive)
+  (save-excursion
+    (let ((original-point (point))
+          (original-window-start (window-start)))
+      (symbol-navigation-hydra-move-point-one-symbol-forward)
+      (while (not (eq original-point (point)))
+        (symbol-navigation-hydra-mark-and-move-to-next))
+      (set-window-start (selected-window) original-window-start))))
 
 (defun symbol-navigation-hydra-back-to-start ()
   "Move `point' to the location it was upon user-initiated hydra invocation."
@@ -445,26 +551,12 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Regexp-Search.html"
     (sn-hydra/body)
     (if forward (ahs-forward) (ahs-backward))))
 
-(defun symbol-navigation-hydra-engage-iedit ()
-  "Trigger iedit."
-  (interactive)
-  ;; These are the same thing, but we need the inlined `fboundp' to satisfy
-  ;; flycheck
-  (if (and (symbol-navigation-hydra-is-iedit-enabled)
-           (fboundp 'iedit-mode)
-           (fboundp 'iedit-restrict-region))
-      (progn
-        (iedit-mode)
-        (iedit-restrict-region (ahs-current-plugin-prop 'start)
-                               (ahs-current-plugin-prop 'end))
-        (ahs-edit-mode t))
-    (symbol-navigation-hydra-error-not-installed "iedit")))
-
 (defun symbol-navigation-hydra-projectile-helm-ag (arg query)
   "Run `helm-do-ag' relative to the project root, searching for `QUERY'.
 
   Or, with prefix arg `ARG', search relative to the current directory."
   (interactive "P")
+  (mc/keyboard-quit)
   ;; These are the same thing, but we need the inlined `fboundp' to satisfy
   ;; flycheck
   (if (and (symbol-navigation-hydra-is-projectile-enabled)
