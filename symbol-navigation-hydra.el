@@ -4,7 +4,7 @@
 
 ;; Author: Brett Wines <bgwines@cs.stanford.edu>
 ;; Keywords: highlight face match convenience hydra symbol
-;; Package-Requires: ((auto-highlight-symbol "1.53") (hydra "0.15.0") (emacs "24.4") (multiple-cursors "1.4.0"))
+;; Package-Requires: ((auto-highlight-symbol "1.53") (hydra "0.15.0") (emacs "24.4") (multiple-cursors "1.4.0") (grep "22.1"))
 ;; URL: https://github.com/bgwines/symbol-navigation-hydra
 ;; Version: 0.0.2
 
@@ -43,6 +43,7 @@
 (require 'hydra)
 (require 'auto-highlight-symbol)
 (require 'multiple-cursors)
+(require 'grep)
 
 (defgroup symbol-navigation-hydra nil
   "The Symbol Navigation Hydra"
@@ -82,6 +83,7 @@
 (defvar symbol-navigation-hydra-ahs-plugin-beginning-of-defun-face-dim 'symbol-navigation-hydra-ahs-plugin-beginning-of-defun-face-dim)
 
 ;; Buffer-local variables
+(defvar helm-ag-base-command)  ;; following the pattern from helm-projectile.el
 (defvar symbol-navigation-hydra-point-at-invocation nil)
 (defvar symbol-navigation-hydra-window-start-at-invocation nil)
 (defvar symbol-navigation-hydra-allow-edit-all-head-execution nil)
@@ -559,31 +561,60 @@ hydra definition."
   Or, with prefix arg `ARG', search relative to the current directory."
   (interactive "P")
   (mc/keyboard-quit)
-  ;; These are the same thing, but we need the inlined `fboundp' to satisfy
-  ;; flycheck
-  (if (and (symbol-navigation-hydra-is-projectile-enabled)
-           (fboundp 'projectile-project-root))
-      (if (and (symbol-navigation-hydra-is-helm-ag-enabled)
-               (fboundp 'helm-do-ag))
-          (if arg
-              (progn
-                ;; Have to kill the prefix arg so it doesn't get forwarded
-                ;; and screw up helm-do-ag
-                (set-variable 'current-prefix-arg nil)
+  (if (symbol-navigation-hydra-is-helm-ag-enabled)
+      (if arg
+          (progn
+            ;; Have to kill the prefix arg so it doesn't get forwarded
+            ;; and screw up helm-do-ag
+            (set-variable 'current-prefix-arg nil)
+            (if dired-directory
+                (symbol-navigation-hydra-helm-projectile-ag query dired-directory)
+              (symbol-navigation-hydra-helm-projectile-ag query nil)
+              )
+            )
+        (symbol-navigation-hydra-helm-projectile-ag query nil))
+    (symbol-navigation-hydra-error-not-installed "helm-ag")))
 
-                (if dired-directory
-                    (helm-do-ag dired-directory nil query)
-                  (helm-do-ag (file-name-directory (buffer-file-name))
-                              nil query)))
-            (helm-do-ag (projectile-project-root) nil query))
-        (symbol-navigation-hydra-error-not-installed "helm-ag"))
-    (symbol-navigation-hydra-error-not-installed "projectile")))
+(defun symbol-navigation-hydra-helm-projectile-ag (query directory &optional options)
+  "SN Hydra version of Helm version of `projectile-ag'.
+
+This is almost a copy of `helm-projectile-ag' from helm-projectile.el,
+but it takes a `QUERY' parameter and an optional `DIRECTORY' parameter.
+`OPTIONS' is a string to be appended to the `ag' shell command, such
+as `--no-color'."
+  (interactive)
+  (if (and (fboundp 'projectile-project-p)
+           (fboundp 'projectile-ignored-files-rel)
+           (fboundp 'projectile-ignored-directories-rel)
+           (fboundp 'projectile-parse-dirconfig-file))
+      (if (and (projectile-project-p) (fboundp 'projectile-project-root))
+          (if (and (boundp 'helm-ag-base-command)
+                   (fboundp 'helm-do-ag))
+              (let* ((grep-find-ignored-files
+                      (cl-union (projectile-ignored-files-rel) grep-find-ignored-files))
+                     (grep-find-ignored-directories
+                      (cl-union (projectile-ignored-directories-rel) grep-find-ignored-directories))
+                     (ignored (mapconcat (lambda (i)
+                                           (concat "--ignore " i))
+                                         (append grep-find-ignored-files
+                                                 grep-find-ignored-directories
+                                                 (cadr (projectile-parse-dirconfig-file)))
+                                         " "))
+                     (helm-ag-base-command (concat helm-ag-base-command " " ignored " " options))
+                     (current-prefix-arg nil)
+                     (ag-directory (if directory directory (projectile-project-root))))
+                (helm-do-ag ag-directory (car (projectile-parse-dirconfig-file)) query))
+            (symbol-navigation-hydra-error-not-installed "helm-ag"))
+        (error "You're not in a project"))
+    (symbol-navigation-hydra-error-not-installed "projectile")
+    )
+  )
 
 (defun symbol-navigation-hydra-error-not-installed (package-name)
   "Raise an error.
 
 `PACKAGE-NAME' should be the name of the package that isn't installed."
-  (error (format "%s not installed. See Auto-Highlight Symbol Hydra README.md"
+  (error (format "%s not installed. See the Symbol Navigation Hydra README.md"
                  package-name)))
 
 (provide 'symbol-navigation-hydra)
