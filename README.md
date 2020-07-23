@@ -1,6 +1,12 @@
 # Symbol Navigation Hydra
 
-This package is an Emacs [hydra](https://github.com/abo-abo/hydra) inspired by the [Spacemacs AHS Transient State](https://develop.spacemacs.org/doc/DOCUMENTATION.html#highlight-current-symbol). It is a tool for navigating around and acting upon instances of a symbol (e.g. a function name or a keyword) within a specified range, which can be adjusted.
+[![MELPA](https://melpa.org/packages/symbol-navigation-hydra-badge.svg)](https://melpa.org/#/symbol-navigation-hydra)
+
+This package is an Emacs [hydra](https://github.com/abo-abo/hydra) that augments existing Emacs navigation and editing functionality by adding awareness of symbols and configuration of the range of focus for these operations. Its functionality can be partitioned into three categories:
+
+1. navigation
+2. multiple cursors / swooping
+3. searching in a directory/project
 
 ![demo](https://imgur.com/E3IF7K9.png)
 
@@ -39,9 +45,13 @@ With your cursor anywhere on a symbol (no need to select it), bring up the hydra
 
 ### Installing (for most Emacs distributions)
 
-This package is in the process of submission to MELPA.
+This package is available via MELPA (https://melpa.org/#/symbol-navigation-hydra), via the following command:
 
-Alternately, clone a) this repo b) [hydra](https://github.com/abo-abo/hydra) c) [auto-highlight-symbol](https://github.com/mhayashi1120/auto-highlight-symbol-mode) and put them all in your Emacs `load-path`:
+```
+M-x package-install symbol-navigation-hydra
+```
+
+Alternately, clone a) this repo b) [hydra](https://github.com/abo-abo/hydra) c) [auto-highlight-symbol](https://github.com/mhayashi1120/auto-highlight-symbol-mode) d) [multiple-cursors](https://github.com/magnars/multiple-cursors.el) and put them all in your Emacs `load-path`:
 
 ``` elisp
 (add-to-list 'load-path "~/path/to/cloned/repo/")
@@ -52,9 +62,7 @@ Alternately, clone a) this repo b) [hydra](https://github.com/abo-abo/hydra) c) 
 
 ```elisp
 ;; in packages.el
-(package! symbol-navigation-hydra :recipe
-  '(:host github
-    :repo "bgwines/symbol-navigation-hydra"))
+(package! symbol-navigation-hydra)
 ```
 
 ### Installing (additional functionality)
@@ -65,7 +73,6 @@ By default, only the navigation functionality is enabled. The remaining heads ar
 * [`helm-ag`](https://github.com/emacsorphanage/helm-ag)
     * [The Silver Searcher](https://github.com/ggreer/the_silver_searcher)
 * [`projectile`](https://github.com/bbatsov/projectile)
-* [`multiple-cursors`](https://github.com/magnars/multiple-cursors.el)
 
 ### Activating
 
@@ -76,6 +83,7 @@ By default, only the navigation functionality is enabled. The remaining heads ar
 ;; if you're not using Doom, you also need the following
 (require 'hydra)
 (require 'auto-highlight-symbol)
+(require 'multiple-cursors)
 ```
 
 ## Recommended Settings
@@ -113,7 +121,11 @@ You may also wish to customize some other variables from the [Auto Highlight Sym
 
 ## Differences with the Spacemacs AHS Hydra
 
-The most prominent difference is simultaneous display of all three overlay counts, instead of just one. The _d_ and _D_ keys are removed since the Auto Highlight Symbol implementation wasn't as accurate as I'd like. The _b_ key is not supported since I didn't find it useful (tracked in a Github issue).
+The most prominent difference is simultaneous display of all three overlay counts, instead of just one.
+
+Also, this hydra supports multiple cursors functionality. The `iedit` hydra head has been replaced with an implementation based on the widely used `multiple-cursors` library.
+
+The _d_ and _D_ heads are removed since the implementation (which used the underlying Auto Highlight Symbol package) wasn't very accurate. The _b_ (open buffers search) head is not supported since I didn't find it useful.
 
 ## Licence
 
@@ -124,6 +136,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.
 
 ## Other
+
+This package was inspired by the [Spacemacs AHS Transient State](https://develop.spacemacs.org/doc/DOCUMENTATION.html#highlight-current-symbol).
 
 I'd love to hear your feedback. Raise an Github issue here and I'll respond promptly.
 
