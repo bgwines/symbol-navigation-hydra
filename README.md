@@ -103,9 +103,14 @@ By default, only the navigation functionality is enabled. The remaining heads ar
 ;; Disable symbol highlighting when the hydra is not active (yes, this is a hack 😅).
 (setq-default ahs-idle-interval 999999999.0)
 
-;; Defaults for multiple cursor behavior
+;; Same defaults for multiple cursor behavior
 (setq-default mc/always-repeat-command t)
 (setq-default mc/always-run-for-all t)
+
+;; You might want this so SN Hydra mutliple cursors can update
+;; print-statements / doc-strings
+(setq-default ahs-inhibit-face-list (delete 'font-lock-string-face ahs-inhibit-face-list))
+(setq-default ahs-inhibit-face-list (delete 'font-lock-doc-face ahs-inhibit-face-list))
 
 ;; Many - but not all - languages are supported by default. You'll probably get pretty good
 ;; behavior by just opting one in if it's not already there.
@@ -121,7 +126,9 @@ If this is your first time using an Emacs hydra, you might want to set
 
 You may also wish to customize some other variables from the [Auto Highlight Symbol package](https://github.com/mhayashi1120/auto-highlight-symbol-mode) itself.
 
-## Differences with the Spacemacs AHS Hydra
+## Differences with the Spacemacs AHS Transient State
+
+This package was inspired by the [Spacemacs AHS Transient State](https://develop.spacemacs.org/doc/DOCUMENTATION.html#highlight-current-symbol) :)
 
 The most prominent difference is simultaneous display of all three overlay counts, instead of just one.
 
@@ -138,8 +145,6 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.
 
 ## Other
-
-This package was inspired by the [Spacemacs AHS Transient State](https://develop.spacemacs.org/doc/DOCUMENTATION.html#highlight-current-symbol).
 
 I'd love to hear your feedback. Raise an Github issue here and I'll respond promptly.
 
