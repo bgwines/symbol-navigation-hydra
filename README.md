@@ -8,7 +8,9 @@ This package is an Emacs [hydra](https://github.com/abo-abo/hydra) that augments
 2. multiple cursors / swooping
 3. searching in a directory/project
 
-![demo](https://imgur.com/E3IF7K9.png)
+![demo-image](demo-image.png)
+
+![demo-image-2](demo-image-2.png)
 
 There are three available ranges:
 

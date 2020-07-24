@@ -586,10 +586,12 @@ as `--no-color'."
   (if (and (fboundp 'projectile-project-p)
            (fboundp 'projectile-ignored-files-rel)
            (fboundp 'projectile-ignored-directories-rel)
-           (fboundp 'projectile-parse-dirconfig-file))
+           (fboundp 'projectile-parse-dirconfig-file)
+           (require 'projectile nil t))
       (if (and (projectile-project-p) (fboundp 'projectile-project-root))
           (if (and (boundp 'helm-ag-base-command)
-                   (fboundp 'helm-do-ag))
+                   (fboundp 'helm-do-ag)
+                   (require 'helm-ag nil t))
               (let* ((grep-find-ignored-files
                       (cl-union (projectile-ignored-files-rel) grep-find-ignored-files))
                      (grep-find-ignored-directories
