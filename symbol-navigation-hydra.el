@@ -583,15 +583,15 @@ but it takes a `QUERY' parameter and an optional `DIRECTORY' parameter.
 `OPTIONS' is a string to be appended to the `ag' shell command, such
 as `--no-color'."
   (interactive)
-  (if (and (fboundp 'projectile-project-p)
+  (if (and (require 'projectile nil t)
+           (fboundp 'projectile-project-p)
            (fboundp 'projectile-ignored-files-rel)
            (fboundp 'projectile-ignored-directories-rel)
-           (fboundp 'projectile-parse-dirconfig-file)
-           (require 'projectile nil t))
+           (fboundp 'projectile-parse-dirconfig-file))
       (if (and (projectile-project-p) (fboundp 'projectile-project-root))
-          (if (and (boundp 'helm-ag-base-command)
-                   (fboundp 'helm-do-ag)
-                   (require 'helm-ag nil t))
+          (if (and (require 'helm-ag nil t)
+                   (boundp 'helm-ag-base-command)
+                   (fboundp 'helm-do-ag))
               (let* ((grep-find-ignored-files
                       (cl-union (projectile-ignored-files-rel) grep-find-ignored-files))
                      (grep-find-ignored-directories
