@@ -4,7 +4,7 @@
 
 ;; Author: Brett Wines <bgwines@cs.stanford.edu>
 ;; Keywords: highlight face match convenience hydra symbol
-;; Package-Requires: ((auto-highlight-symbol "1.53") (hydra "0.15.0") (emacs "24.4") (multiple-cursors "1.4.0") (grep "22.1"))
+;; Package-Requires: ((auto-highlight-symbol "1.53") (hydra "0.15.0") (emacs "24.4") (multiple-cursors "1.4.0"))
 ;; URL: https://github.com/bgwines/symbol-navigation-hydra
 ;; Version: 0.0.2
 
@@ -587,7 +587,9 @@ as `--no-color'."
            (fboundp 'projectile-project-p)
            (fboundp 'projectile-ignored-files-rel)
            (fboundp 'projectile-ignored-directories-rel)
-           (fboundp 'projectile-parse-dirconfig-file))
+           (fboundp 'projectile-parse-dirconfig-file)
+           (boundp 'grep-find-ignored-files)
+           (boundp 'grep-find-ignored-directories))
       (if (and (projectile-project-p) (fboundp 'projectile-project-root))
           (if (and (require 'helm-ag nil t)
                    (boundp 'helm-ag-base-command)
