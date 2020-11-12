@@ -187,7 +187,7 @@ string or a string indicating that `NAME' is disabled."
   (mc/keyboard-quit)
   (if (and (symbol-navigation-hydra-is-swoop-enabled) (fboundp 'helm-swoop))
       (call-interactively #'helm-swoop)
-    (symbol-navigation-hydra-error-not-installed "helm-swoop")))
+    (symbol-navigation-hydra-error-not-installed "helm-swoop" 'helm-swoop)))
 
 (defun symbol-navigation-hydra-swoop-suffix ()
    "Indicate disabledness if necessary."
@@ -573,7 +573,7 @@ hydra definition."
               )
             )
         (symbol-navigation-hydra-helm-projectile-ag query nil))
-    (symbol-navigation-hydra-error-not-installed "helm-ag")))
+    (symbol-navigation-hydra-error-not-installed "helm-ag" 'helm-ag)))
 
 (defun symbol-navigation-hydra-helm-projectile-ag (query directory &optional options)
   "SN Hydra version of Helm version of `projectile-ag'.
@@ -608,18 +608,23 @@ as `--no-color'."
                      (current-prefix-arg nil)
                      (ag-directory (if directory directory (projectile-project-root))))
                 (helm-do-ag ag-directory (car (projectile-parse-dirconfig-file)) query))
-            (symbol-navigation-hydra-error-not-installed "helm-ag"))
+            (symbol-navigation-hydra-error-not-installed "helm-ag" 'helm-ag))
         (error "You're not in a project"))
-    (symbol-navigation-hydra-error-not-installed "projectile")
+    (symbol-navigation-hydra-error-not-installed "projectile" 'projectile)
     )
   )
 
-(defun symbol-navigation-hydra-error-not-installed (package-name)
-  "Raise an error.
+(defun symbol-navigation-hydra-error-not-installed (package-name package)
+  "Prompt the user to install.
 
-`PACKAGE-NAME' should be the name of the package that isn't installed."
-  (error (format "%s not installed. See the Symbol Navigation Hydra README.md"
-                 package-name)))
+`PACKAGE-NAME' should be the name of the package that isn't installed.
+`PACKAGE' should be the package."
+  (when (yes-or-no-p (format "%s is not installed. Install? " package))
+    (condition-case nil
+        (progn
+          (package-install package)
+          (sn-hydra/body))
+      (error (error (format "%s is not available. See the Symbol Navigation Hydra README.md. Is MELPA in your `package-archives'?" package-name))))))
 
 (provide 'symbol-navigation-hydra)
 
