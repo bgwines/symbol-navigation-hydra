@@ -6,7 +6,7 @@
 ;; Keywords: highlight face match convenience hydra symbol
 ;; Package-Requires: ((auto-highlight-symbol "1.53") (hydra "0.15.0") (emacs "24.4") (multiple-cursors "1.4.0"))
 ;; URL: https://github.com/bgwines/symbol-navigation-hydra
-;; Version: 0.0.2
+;; Version: 0.0.3
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -100,7 +100,7 @@
 ^^^^^^^^^^^^-----------------------|-------------------------------|-------------%s(symbol-navigation-hydra-header-extra--s)
 _n_^^^^: next    _z_: recenter ^^^^| _f_: mark & next  _u_: %s(symbol-navigation-hydra-unmark-header)     | _d_: %s(symbol-navigation-hydra-folder-header)
 _N_/_p_: prev^^  _r_: range    ^^^^| _b_: mark & prev  _e_: %s(symbol-navigation-hydra-edit-marks-header) | _g_: %s(symbol-navigation-hydra-project-header)
-_R_^^^^: %s(symbol-navigation-hydra-reset-header)   _q_: quit     ^^^^| _a_: mark all     _s_: %s(symbol-navigation-hydra-swoop-header)  |
+_R_^^^^: %s(symbol-navigation-hydra-reset-header)   _q_/C-g: quit ^^^^| _a_: mark all     _s_: %s(symbol-navigation-hydra-swoop-header)  |
 %s(symbol-navigation-hydra-footer)"
   ("n" symbol-navigation-hydra-move-point-one-symbol-forward)
   ("N" symbol-navigation-hydra-move-point-one-symbol-backward)
@@ -118,7 +118,8 @@ _R_^^^^: %s(symbol-navigation-hydra-reset-header)   _q_: quit     ^^^^| _a_: mar
    :exit t)
   ("g" (symbol-navigation-hydra-projectile-helm-ag nil (thing-at-point 'symbol))
    :exit t)
-  ("q" symbol-navigation-hydra-exit :exit t))
+  ("q" symbol-navigation-hydra-exit :exit t)
+  ("^g" symbol-navigation-hydra-exit :exit t))
 
 (defface symbol-navigation-hydra-disabled-head-face
   '((t (:foreground "#777777")))
