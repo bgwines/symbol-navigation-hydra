@@ -6,7 +6,7 @@
 ;; Keywords: highlight face match convenience hydra symbol
 ;; Package-Requires: ((auto-highlight-symbol "1.53") (hydra "0.15.0") (emacs "24.4") (multiple-cursors "1.4.0"))
 ;; URL: https://github.com/bgwines/symbol-navigation-hydra
-;; Version: 0.0.3
+;; Version: 0.0.4
 
 ;; This file is NOT part of GNU Emacs.
 
