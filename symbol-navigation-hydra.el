@@ -96,11 +96,11 @@
 (defhydra sn-hydra (:hint nil :color amaranth)
   "
 %s(symbol-navigation-hydra-header)
-^ ^      Navigation      ^^^^^^^^^^| ^ ^           Multi %s(symbol-navigation-hydra-get-formatted-mc-count)%s(symbol-navigation-hydra-get-col-2-spaces)|    Search
-^^^^^^^^^^^^-----------------------|-------------------------------|-------------%s(symbol-navigation-hydra-header-extra--s)
-_n_^^^^: next    _z_: recenter ^^^^| _f_: mark & next  _u_: %s(symbol-navigation-hydra-unmark-header)     | _d_: %s(symbol-navigation-hydra-folder-header)
-_N_/_p_: prev^^  _r_: range    ^^^^| _b_: mark & prev  _e_: %s(symbol-navigation-hydra-edit-marks-header) | _g_: %s(symbol-navigation-hydra-project-header)
-_R_^^^^: %s(symbol-navigation-hydra-reset-header)   _q_/C-g: quit ^^^^| _a_: mark all     _s_: %s(symbol-navigation-hydra-swoop-header)  |
+^ ^      Navigation        ^^^^^^^^^^| ^ ^           Multi %s(symbol-navigation-hydra-get-formatted-mc-count)%s(symbol-navigation-hydra-get-col-2-spaces)|    Search
+^^^^^^^^^^^^-------------------------|-------------------------------|-------------%s(symbol-navigation-hydra-header-extra--s)
+_n_^^^^: next    _z_/_l_: recenter ^^^^| _f_: mark & next  _u_: %s(symbol-navigation-hydra-unmark-header)     | _d_: %s(symbol-navigation-hydra-folder-header)
+_N_/_p_: prev^^  _r_: range      ^^^^| _b_: mark & prev  _e_: %s(symbol-navigation-hydra-edit-marks-header) | _g_: %s(symbol-navigation-hydra-project-header)
+_R_^^^^: %s(symbol-navigation-hydra-reset-header)   _q_/C-g: quit   ^^^^| _a_: mark all     _s_: %s(symbol-navigation-hydra-swoop-header)  |
 %s(symbol-navigation-hydra-footer)"
   ("n" symbol-navigation-hydra-move-point-one-symbol-forward)
   ("N" symbol-navigation-hydra-move-point-one-symbol-backward)
@@ -108,6 +108,7 @@ _R_^^^^: %s(symbol-navigation-hydra-reset-header)   _q_/C-g: quit ^^^^| _a_: mar
   ("r" ahs-change-range)
   ("R" symbol-navigation-hydra-back-to-start)
   ("z" (progn (recenter-top-bottom) (ahs-highlight-now) (sn-hydra/body)))
+  ("l" (progn (recenter-top-bottom) (ahs-highlight-now) (sn-hydra/body)))
   ("b" symbol-navigation-hydra-mark-and-move-to-prev)
   ("f" symbol-navigation-hydra-mark-and-move-to-next)
   ("a" symbol-navigation-hydra-mark-all)
