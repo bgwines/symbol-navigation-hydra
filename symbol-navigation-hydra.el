@@ -6,7 +6,7 @@
 ;; Keywords: highlight face match convenience hydra symbol
 ;; Package-Requires: ((auto-highlight-symbol "1.53") (hydra "0.15.0") (emacs "24.4") (multiple-cursors "1.4.0"))
 ;; URL: https://github.com/bgwines/symbol-navigation-hydra
-;; Version: 0.0.4
+;; Version: 0.0.5
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -59,9 +59,19 @@
                               "symbol-navigation-hydra"))))
 
 (defcustom symbol-navigation-hydra-display-legend nil
-  "*Non-nil means suppress the KEY legend."
+  "Non-nil means suppress the KEY legend."
   :group 'symbol-navigation-hydra
   :type 'boolean)
+
+(defcustom symbol-navigation-hydra-project-search-fn nil
+  "An override for the `g` head."
+  :group 'symbol-navigation-hydra
+  :type 'function)
+
+(defcustom symbol-navigation-hydra-directory-search-fn nil
+  "An override for the `d` head."
+  :group 'symbol-navigation-hydra
+  :type 'function)
 
 (defface symbol-navigation-hydra-ahs-plugin-display-face-dim
   '((t (:foreground "#eeeeee" :background "#3a2303")))
@@ -115,12 +125,24 @@ _R_^^^^: %s(symbol-navigation-hydra-reset-header)   _q_/C-g: quit   ^^^^| _a_: m
   ("u" symbol-navigation-hydra-remove-fake-cursors-at-point)
   ("e" symbol-navigation-hydra-mc-edit :exit t)
   ("s" symbol-navigation-hydra-swoop :exit t)
-  ("d" (symbol-navigation-hydra-projectile-helm-ag t (thing-at-point 'symbol))
+  ("d" (symbol-navigation-hydra-search-directory (thing-at-point 'symbol))
    :exit t)
-  ("g" (symbol-navigation-hydra-projectile-helm-ag nil (thing-at-point 'symbol))
+  ("g" (symbol-navigation-hydra-search-project (thing-at-point 'symbol))
    :exit t)
   ("q" symbol-navigation-hydra-exit :exit t)
   ("^g" symbol-navigation-hydra-exit :exit t))
+
+(defun symbol-navigation-hydra-search-directory (symbol)
+  "Search the current directory for `SYMBOL'."
+  (if (eq nil symbol-navigation-hydra-directory-search-fn)
+      (symbol-navigation-hydra-projectile-helm-ag t symbol)
+    (funcall symbol-navigation-hydra-directory-search-fn symbol)))
+
+(defun symbol-navigation-hydra-search-project (symbol)
+  "Search the current project for `SYMBOL'."
+  (if (eq nil symbol-navigation-hydra-project-search-fn)
+      (symbol-navigation-hydra-projectile-helm-ag nil symbol)
+    (funcall symbol-navigation-hydra-project-search-fn symbol)))
 
 (defface symbol-navigation-hydra-disabled-head-face
   '((t (:foreground "#777777")))
@@ -571,9 +593,7 @@ hydra definition."
             (set-variable 'current-prefix-arg nil)
             (if dired-directory
                 (symbol-navigation-hydra-helm-projectile-ag query dired-directory)
-              (symbol-navigation-hydra-helm-projectile-ag query nil)
-              )
-            )
+              (symbol-navigation-hydra-helm-projectile-ag query nil)))
         (symbol-navigation-hydra-helm-projectile-ag query nil))
     (symbol-navigation-hydra-error-not-installed "helm-ag")))
 
@@ -612,9 +632,7 @@ as `--no-color'."
                 (helm-do-ag ag-directory (car (projectile-parse-dirconfig-file)) query))
             (symbol-navigation-hydra-error-not-installed "helm-ag"))
         (error "You're not in a project"))
-    (symbol-navigation-hydra-error-not-installed "projectile")
-    )
-  )
+    (symbol-navigation-hydra-error-not-installed "projectile")))
 
 (defun symbol-navigation-hydra-error-not-installed (package-name)
   "Raise an error.
