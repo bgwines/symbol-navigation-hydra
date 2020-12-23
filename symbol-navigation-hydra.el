@@ -173,18 +173,20 @@ _R_^^^^: %s(symbol-navigation-hydra-reset-header)   _q_/C-g: quit   ^^^^| _a_: m
    (symbol-navigation-hydra-swoop-suffix)))
 
 (defun symbol-navigation-hydra-folder-header ()
-  "The header for the \"swoop\" hydra head."
+  "The header for the \"directory\" hydra head."
   (symbol-navigation-hydra-head-header
-   (and (symbol-navigation-hydra-is-helm-ag-enabled)
-        (symbol-navigation-hydra-is-projectile-enabled))
-   "directory" (symbol-navigation-hydra-projectile-suffix)))
+   (or symbol-navigation-hydra-directory-search-fn
+    (and (symbol-navigation-hydra-is-helm-ag-enabled)
+        (symbol-navigation-hydra-is-projectile-enabled)))
+   "directory" (symbol-navigation-hydra-directory-suffix)))
 
 (defun symbol-navigation-hydra-project-header ()
-  "The header for the \"swoop\" hydra head."
+  "The header for the \"project\" hydra head."
   (symbol-navigation-hydra-head-header
-   (and (symbol-navigation-hydra-is-helm-ag-enabled)
-        (symbol-navigation-hydra-is-projectile-enabled))
-   "project" (symbol-navigation-hydra-projectile-suffix)))
+   (or symbol-navigation-hydra-project-search-fn
+       (and (symbol-navigation-hydra-is-helm-ag-enabled)
+        (symbol-navigation-hydra-is-projectile-enabled)))
+   "project" (symbol-navigation-hydra-project-suffix)))
 
 (defun symbol-navigation-hydra-head-header (is-enabled name suffix)
   "Get the string for the head.
@@ -200,7 +202,9 @@ string or a string indicating that `NAME' is disabled."
 
 (defun symbol-navigation-hydra-header-extra--s ()
   "Return a string with 0 or more '-' characters."
-  (let ((col-3 (length (symbol-navigation-hydra-projectile-suffix))))
+  (let ((col-3 (max
+                (length (symbol-navigation-hydra-directory-suffix))
+                (length (symbol-navigation-hydra-project-suffix)))))
     (make-string col-3 ?-)))
 
 (defun symbol-navigation-hydra-swoop ()
@@ -218,14 +222,26 @@ string or a string indicating that `NAME' is disabled."
    (symbol-navigation-hydra-head-suffix
     (symbol-navigation-hydra-is-swoop-enabled) t))
 
-(defun symbol-navigation-hydra-projectile-suffix ()
+(defun symbol-navigation-hydra-project-suffix ()
   "Indicate disabledness if necessary.
 
 This function is an aggregation of two checks because they both guard the same
 behavior in the UI."
   (symbol-navigation-hydra-head-suffix
-   (and (symbol-navigation-hydra-is-projectile-enabled)
-        (symbol-navigation-hydra-is-helm-ag-enabled))))
+   (or symbol-navigation-hydra-project-search-fn
+       (and (symbol-navigation-hydra-is-projectile-enabled)
+        (symbol-navigation-hydra-is-helm-ag-enabled)))))
+
+
+(defun symbol-navigation-hydra-directory-suffix ()
+  "Indicate disabledness if necessary.
+
+This function is an aggregation of two checks because they both guard the same
+behavior in the UI."
+  (symbol-navigation-hydra-head-suffix
+   (or symbol-navigation-hydra-directory-search-fn
+       (and (symbol-navigation-hydra-is-projectile-enabled)
+            (symbol-navigation-hydra-is-helm-ag-enabled)))))
 
 
 (defun symbol-navigation-hydra-head-suffix (is-enabled &optional include-spaces)
