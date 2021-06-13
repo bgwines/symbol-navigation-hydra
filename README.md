@@ -23,16 +23,17 @@ With your cursor anywhere on a symbol (no need to select it), bring up the hydra
 * Navigation
     * _n_ and _p_ move the cursor to the next and previous instance of the symbol, respectively
                   For example, you may define multiple variables with the same name across multiple
-                  functions.
+                  functions. They accept a prefix argument (e.g. C-u 3)
     * _R_ moves the cursor back to where it was when you activated the hydra.
     * _r_ selects another range. There are only three, so at most you need to hit it twice.
-    * _z_ vertically centers the current line. This is like the Emacs command `recenter-top-bottom` -
+    * _z_and _l_ vertically centers the current line. This is like the Emacs command `recenter-top-bottom` -
           usually `C-l` - but within the hydra.
+    * _i_ moves the cursor to the `i`th occurrence of the symbol. Note that `i` is 1-indexed, since that is the format in the overlay counts (e.g. the [3/7] marker at the top of the hydra)
 * Multi
     * _f_ drops a cursor at the current location, and moves forward to the next occurrence of the symbol
-          within the range. After this, you will have at least two cursors active.
+          within the range. After this, you will have at least two cursors active. It accepts a prefix argument (e.g. C-u 3)
     * _b_ drops a cursor at the current location, and moves backward to the previous occurrence of the symbol
-          within the range. After this, you will have at least two cursors active.
+          within the range. After this, you will have at least two cursors active. It accepts a prefix argument (e.g. C-u 3)
     * _e_ exits the hydra and preserves all cursors. This is the way to exit when they want to exit the
           hydra and start editing your buffer again, but with the multiple cursors active. All other ways
           of exiting the hydra will clear the cursors.

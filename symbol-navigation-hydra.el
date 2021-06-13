@@ -105,16 +105,17 @@
 ;;;###autoload (autoload 'sn-hydra/body "symbol-navigation-hydra.el" nil nil)
 (defhydra sn-hydra (:hint nil :color amaranth)
   "
-%s(symbol-navigation-hydra-header)
+%s(symbol-navigation-hydra-header)     *accepts C-u
 ^ ^      Navigation         ^^^^^^^^^^| ^ ^            Multi %s(symbol-navigation-hydra-get-formatted-mc-count)%s(symbol-navigation-hydra-get-col-2-spaces)|    Search
 ^^^^^^^^^^^^--------------------------|--------------------------------|-------------%s(symbol-navigation-hydra-header-extra--s)
 _n_^^^^: next*    _z_/_l_: recenter ^^^^| _f_: mark & next*  _u_: %s(symbol-navigation-hydra-unmark-header)     | _d_: %s(symbol-navigation-hydra-folder-header)
 _N_/_p_: prev*^^  _r_: range      ^^^^| _b_: mark & prev*  _e_: %s(symbol-navigation-hydra-edit-marks-header) | _g_: %s(symbol-navigation-hydra-project-header)
-_R_^^^^: %s(symbol-navigation-hydra-reset-header)    _q_/C-g: quit   ^^^^| _a_: mark all      _s_: %s(symbol-navigation-hydra-swoop-header)  | *accepts C-u
+_R_^^^^: %s(symbol-navigation-hydra-reset-header)    _i_: ith        | _a_: mark all      _s_: %s(symbol-navigation-hydra-swoop-header)  | _q_/C-g: quit
 %s(symbol-navigation-hydra-footer)"
   ("n" symbol-navigation-hydra-move-point-one-symbol-forward)
   ("N" symbol-navigation-hydra-move-point-one-symbol-backward)
   ("p" symbol-navigation-hydra-move-point-one-symbol-backward)
+  ("i" symbol-navigation-hydra-move-point-to-ith)
   ("r" ahs-change-range)
   ("R" symbol-navigation-hydra-back-to-start)
   ("z" (progn (recenter-top-bottom) (ahs-highlight-now) (sn-hydra/body)))
@@ -579,13 +580,32 @@ hydra definition."
   (sn-hydra/body))
 
 (defun symbol-navigation-hydra-move-point-one-symbol-forward (&optional n)
-  "Move to the next occurrence of symbol under point."
+  "Move to the next occurrence of symbol under point. N is the (optional)
+  prefix argument."
   (interactive "P")
   (dotimes (_ (if n n 1))
     (symbol-navigation-hydra-move-point-one-symbol t)))
 
+(defun symbol-navigation-hydra-move-point-to-ith ()
+  "Move to the ith occurrence of symbol under point.
+  i is 1-indexed because that's consistent with the overlay counts."
+  (interactive)
+  (ahs-highlight-now)
+  (message (format "(thing-at-point 'symbol): %s" (thing-at-point 'symbol)))
+  (let* ((overlay-count (length ahs-overlay-list))
+         (current-overlay (format "%s" ahs-current-overlay))
+         (xy (symbol-navigation-hydra-get-active-xy current-overlay
+                                                    overlay-count))
+         (x (string-to-number (car (split-string (substring xy 1) "/"))))
+         (i (read-number "i: "))
+         (n-moves-back (- x i)))
+    (if (>= n-moves-back 0)
+        (symbol-navigation-hydra-move-point-one-symbol-backward n-moves-back)
+        (symbol-navigation-hydra-move-point-one-symbol-forward (- 0 n-moves-back)))))
+
 (defun symbol-navigation-hydra-move-point-one-symbol-backward (&optional n)
-  "Move to the previous occurrence of symbol under point."
+  "Move to the previous occurrence of symbol under point. N is the (optional)
+  prefix argument."
   (interactive "P")
   (dotimes (_ (if n n 1))
     (symbol-navigation-hydra-move-point-one-symbol nil)))
