@@ -106,11 +106,11 @@
 (defhydra sn-hydra (:hint nil :color amaranth)
   "
 %s(symbol-navigation-hydra-header)
-^ ^      Navigation        ^^^^^^^^^^| ^ ^           Multi %s(symbol-navigation-hydra-get-formatted-mc-count)%s(symbol-navigation-hydra-get-col-2-spaces)|    Search
-^^^^^^^^^^^^-------------------------|-------------------------------|-------------%s(symbol-navigation-hydra-header-extra--s)
-_n_^^^^: next    _z_/_l_: recenter ^^^^| _f_: mark & next  _u_: %s(symbol-navigation-hydra-unmark-header)     | _d_: %s(symbol-navigation-hydra-folder-header)
-_N_/_p_: prev^^  _r_: range      ^^^^| _b_: mark & prev  _e_: %s(symbol-navigation-hydra-edit-marks-header) | _g_: %s(symbol-navigation-hydra-project-header)
-_R_^^^^: %s(symbol-navigation-hydra-reset-header)   _q_/C-g: quit   ^^^^| _a_: mark all     _s_: %s(symbol-navigation-hydra-swoop-header)  |
+^ ^      Navigation         ^^^^^^^^^^| ^ ^            Multi %s(symbol-navigation-hydra-get-formatted-mc-count)%s(symbol-navigation-hydra-get-col-2-spaces)|    Search
+^^^^^^^^^^^^--------------------------|--------------------------------|-------------%s(symbol-navigation-hydra-header-extra--s)
+_n_^^^^: next*    _z_/_l_: recenter ^^^^| _f_: mark & next*  _u_: %s(symbol-navigation-hydra-unmark-header)     | _d_: %s(symbol-navigation-hydra-folder-header)
+_N_/_p_: prev*^^  _r_: range      ^^^^| _b_: mark & prev*  _e_: %s(symbol-navigation-hydra-edit-marks-header) | _g_: %s(symbol-navigation-hydra-project-header)
+_R_^^^^: %s(symbol-navigation-hydra-reset-header)    _q_/C-g: quit   ^^^^| _a_: mark all      _s_: %s(symbol-navigation-hydra-swoop-header)  | *accepts C-u
 %s(symbol-navigation-hydra-footer)"
   ("n" symbol-navigation-hydra-move-point-one-symbol-forward)
   ("N" symbol-navigation-hydra-move-point-one-symbol-backward)
@@ -543,19 +543,21 @@ hydra definition."
     (ahs-highlight-now)
     (sn-hydra/body)))
 
-(defun symbol-navigation-hydra-mark-and-move-to-prev ()
+(defun symbol-navigation-hydra-mark-and-move-to-prev (&optional n)
   "Drop a cursor at `point', and move to the previous occurrence of the symbol."
-  (interactive)
-  (unless (mc/fake-cursor-at-point)
-    (mc/create-fake-cursor-at-point))
-  (symbol-navigation-hydra-move-point-one-symbol-backward))
+  (interactive "P")
+  (dotimes (_ (if n n 1))
+    (unless (mc/fake-cursor-at-point)
+      (mc/create-fake-cursor-at-point))
+    (symbol-navigation-hydra-move-point-one-symbol-backward)))
 
-(defun symbol-navigation-hydra-mark-and-move-to-next ()
+(defun symbol-navigation-hydra-mark-and-move-to-next (&optional n)
   "Drop a cursor at `point', and move to the next occurrence of the symbol."
-  (interactive)
-  (unless (mc/fake-cursor-at-point)
-    (mc/create-fake-cursor-at-point))
-  (symbol-navigation-hydra-move-point-one-symbol-forward))
+  (interactive "P")
+  (dotimes (_ (if n n 1))
+    (unless (mc/fake-cursor-at-point)
+      (mc/create-fake-cursor-at-point))
+    (symbol-navigation-hydra-move-point-one-symbol-forward)))
 
 (defun symbol-navigation-hydra-mark-all ()
   "Drop cursors every occurrence of the symbol within the range."
@@ -576,15 +578,17 @@ hydra definition."
   (ahs-highlight-now)
   (sn-hydra/body))
 
-(defun symbol-navigation-hydra-move-point-one-symbol-forward ()
+(defun symbol-navigation-hydra-move-point-one-symbol-forward (&optional n)
   "Move to the next occurrence of symbol under point."
-  (interactive)
-  (symbol-navigation-hydra-move-point-one-symbol t))
+  (interactive "P")
+  (dotimes (_ (if n n 1))
+    (symbol-navigation-hydra-move-point-one-symbol t)))
 
-(defun symbol-navigation-hydra-move-point-one-symbol-backward ()
+(defun symbol-navigation-hydra-move-point-one-symbol-backward (&optional n)
   "Move to the previous occurrence of symbol under point."
-  (interactive)
-  (symbol-navigation-hydra-move-point-one-symbol nil))
+  (interactive "P")
+  (dotimes (_ (if n n 1))
+    (symbol-navigation-hydra-move-point-one-symbol nil)))
 
 (defun symbol-navigation-hydra-move-point-one-symbol (forward)
   "Move to the previous or next occurrence of the symbol under point.
