@@ -29,6 +29,7 @@ With your cursor anywhere on a symbol (no need to select it), bring up the hydra
     * _z_and _l_ vertically centers the current line. This is like the Emacs command `recenter-top-bottom` -
           usually `C-l` - but within the hydra.
     * _i_ moves the cursor to the `i`th occurrence of the symbol. Note that `i` is 1-indexed, since that is the format in the overlay counts (e.g. the [3/7] marker at the top of the hydra)
+    * _1_ moves the cursor to the 1st occurrence of the symbol, and centers the cursor in the window. See _i_ for reasoning on why this is 1-indexed.
 * Multi
     * _f_ drops a cursor at the current location, and moves forward to the next occurrence of the symbol
           within the range. After this, you will have at least two cursors active. It accepts a prefix argument (e.g. C-u 3)

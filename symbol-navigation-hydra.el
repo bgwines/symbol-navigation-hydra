@@ -110,12 +110,13 @@
 ^^^^^^^^^^^^--------------------------|--------------------------------|-------------%s(symbol-navigation-hydra-header-extra--s)
 _n_^^^^: next*    _z_/_l_: recenter ^^^^| _f_: mark & next*  _u_: %s(symbol-navigation-hydra-unmark-header)     | _d_: %s(symbol-navigation-hydra-folder-header)
 _N_/_p_: prev*^^  _r_: range      ^^^^| _b_: mark & prev*  _e_: %s(symbol-navigation-hydra-edit-marks-header) | _g_: %s(symbol-navigation-hydra-project-header)
-_R_^^^^: %s(symbol-navigation-hydra-reset-header)    _i_: ith        | _a_: mark all      _s_: %s(symbol-navigation-hydra-swoop-header)  | _q_/C-g: quit
+_R_^^^^: %s(symbol-navigation-hydra-reset-header)    _i_,_1_: ith,1st  | _a_: mark all      _s_: %s(symbol-navigation-hydra-swoop-header)  | _q_/C-g: quit
 %s(symbol-navigation-hydra-footer)"
   ("n" symbol-navigation-hydra-move-point-one-symbol-forward)
   ("N" symbol-navigation-hydra-move-point-one-symbol-backward)
   ("p" symbol-navigation-hydra-move-point-one-symbol-backward)
   ("i" symbol-navigation-hydra-move-point-to-ith)
+  ("1" symbol-navigation-hydra-move-point-to-first)
   ("r" ahs-change-range)
   ("R" symbol-navigation-hydra-back-to-start)
   ("z" (progn (recenter-top-bottom) (ahs-highlight-now) (sn-hydra/body)))
@@ -545,7 +546,9 @@ hydra definition."
     (sn-hydra/body)))
 
 (defun symbol-navigation-hydra-mark-and-move-to-prev (&optional n)
-  "Drop a cursor at `point', and move to the previous occurrence of the symbol."
+  "Drop a cursor at `point', and move to the previous occurrence of the symbol.
+
+`N' defaults to 1."
   (interactive "P")
   (dotimes (_ (if n n 1))
     (unless (mc/fake-cursor-at-point)
@@ -553,7 +556,9 @@ hydra definition."
     (symbol-navigation-hydra-move-point-one-symbol-backward)))
 
 (defun symbol-navigation-hydra-mark-and-move-to-next (&optional n)
-  "Drop a cursor at `point', and move to the next occurrence of the symbol."
+  "Drop a cursor at `point', and move to the next occurrence of the symbol.
+
+`N' defaults to 1."
   (interactive "P")
   (dotimes (_ (if n n 1))
     (unless (mc/fake-cursor-at-point)
@@ -581,14 +586,24 @@ hydra definition."
 
 (defun symbol-navigation-hydra-move-point-one-symbol-forward (&optional n)
   "Move to the next occurrence of symbol under point. N is the (optional)
-  prefix argument."
+
+prefix argument."
   (interactive "P")
   (dotimes (_ (if n n 1))
     (symbol-navigation-hydra-move-point-one-symbol t)))
 
-(defun symbol-navigation-hydra-move-point-to-ith ()
+(defun symbol-navigation-hydra-move-point-to-first ()
+  "Move to the first occurrence of symbol under point.
+1-indexed because that's consistent with the overlay counts."
+  (interactive)
+  (symbol-navigation-hydra-move-point-to-ith 1)
+  (recenter-top-bottom))
+
+(defun symbol-navigation-hydra-move-point-to-ith (&optional default-i)
   "Move to the ith occurrence of symbol under point.
-  i is 1-indexed because that's consistent with the overlay counts."
+i is 1-indexed because that's consistent with the overlay counts.
+
+If present, `DEFAULT-I' is used. Otherwise, we the user is prompted."
   (interactive)
   (ahs-highlight-now)
   (message (format "(thing-at-point 'symbol): %s" (thing-at-point 'symbol)))
@@ -597,7 +612,7 @@ hydra definition."
          (xy (symbol-navigation-hydra-get-active-xy current-overlay
                                                     overlay-count))
          (x (string-to-number (car (split-string (substring xy 1) "/"))))
-         (i (read-number "i: "))
+         (i (or default-i (read-number "i: ")))
          (n-moves-back (- x i)))
     (if (>= n-moves-back 0)
         (symbol-navigation-hydra-move-point-one-symbol-backward n-moves-back)
@@ -605,7 +620,7 @@ hydra definition."
 
 (defun symbol-navigation-hydra-move-point-one-symbol-backward (&optional n)
   "Move to the previous occurrence of symbol under point. N is the (optional)
-  prefix argument."
+prefix argument."
   (interactive "P")
   (dotimes (_ (if n n 1))
     (symbol-navigation-hydra-move-point-one-symbol nil)))
@@ -613,7 +628,7 @@ hydra definition."
 (defun symbol-navigation-hydra-move-point-one-symbol (forward)
   "Move to the previous or next occurrence of the symbol under point.
 
-  If `FORWARD' is non-nil, move forwards, otherwise, move backwards."
+If `FORWARD' is non-nil, move forwards, otherwise, move backwards."
   (progn
     (ahs-highlight-now)
     (sn-hydra/body)
@@ -622,7 +637,7 @@ hydra definition."
 (defun symbol-navigation-hydra-projectile-helm-ag (arg query)
   "Run `helm-do-ag' relative to the project root, searching for `QUERY'.
 
-  Or, with prefix arg `ARG', search relative to the current directory."
+Or, with prefix arg `ARG', search relative to the current directory."
   (interactive "P")
   (mc/keyboard-quit)
   (if (symbol-navigation-hydra-is-helm-ag-enabled)
