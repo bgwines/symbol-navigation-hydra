@@ -606,7 +606,6 @@ i is 1-indexed because that's consistent with the overlay counts.
 If present, `DEFAULT-I' is used. Otherwise, we the user is prompted."
   (interactive)
   (ahs-highlight-now)
-  (message (format "(thing-at-point 'symbol): %s" (thing-at-point 'symbol)))
   (let* ((overlay-count (length ahs-overlay-list))
          (current-overlay (format "%s" ahs-current-overlay))
          (xy (symbol-navigation-hydra-get-active-xy current-overlay
