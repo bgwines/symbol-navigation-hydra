@@ -317,7 +317,7 @@ behavior in the UI."
 
 (defun symbol-navigation-hydra-plugin-color (plugin)
   "Retrieve the face for `PLUGIN', factoring in whether it is enabled or not."
-  (let ((face (ahs-get-plugin-prop 'face plugin)))
+  (let ((face (ahs-get-plugin-prop 'face plugin t)))
     (if (symbol-navigation-hydra-is-active plugin) face
       (symbol-navigation-hydra-darken-plugin-face face))))
 
