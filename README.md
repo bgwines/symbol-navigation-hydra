@@ -55,7 +55,7 @@ This package is available via MELPA (https://melpa.org/#/symbol-navigation-hydra
 M-x package-install symbol-navigation-hydra
 ```
 
-Alternately, clone a) this repo b) [hydra](https://github.com/abo-abo/hydra) c) [auto-highlight-symbol](https://github.com/mhayashi1120/auto-highlight-symbol-mode) d) [multiple-cursors](https://github.com/magnars/multiple-cursors.el) and put them all in your Emacs `load-path`:
+Alternately, clone a) this repo b) [hydra](https://github.com/abo-abo/hydra) c) [auto-highlight-symbol](https://github.com/jcs-elpa/auto-highlight-symbol) d) [multiple-cursors](https://github.com/magnars/multiple-cursors.el) and put them all in your Emacs `load-path`:
 
 ``` elisp
 (add-to-list 'load-path "~/path/to/cloned/repo/")
@@ -96,14 +96,18 @@ By default, only the navigation functionality is enabled. The remaining heads ar
 ;; You'll want a keystroke for bringing up the hydra.
 (global-set-key (kbd "something") 'symbol-navigation-hydra-engage-hydra)
 
+;; The hydra is intended for navigation only in the current window.
+(setq-default ahs-highlight-all-windows nil)
+
+;; Highlight only while the hydra is active; not upon other circumstances.
+(setq-default ahs-highlight-upon-window-switch nil)
+(setq-default ahs-idle-interval 999999999.0)
+
 ;; Be case-sensitive, since you are probably using this for code.
 (setq-default ahs-case-fold-search nil)
 
 ;; Personal preference -- set the default "range" of operation to be the entire buffer.
 (setq-default ahs-default-range 'ahs-range-whole-buffer)
-
-;; Disable symbol highlighting when the hydra is not active (yes, this is a hack 😅).
-(setq-default ahs-idle-interval 999999999.0)
 
 ;; Same defaults for multiple cursor behavior
 (setq-default mc/always-repeat-command t)
