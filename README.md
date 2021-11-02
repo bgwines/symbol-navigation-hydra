@@ -130,7 +130,7 @@ If this is your first time using an Emacs hydra, you might want to set
 (setq-default ahs-hydra-display-legend t)
 ```
 
-You may also wish to customize some other variables from the [Auto Highlight Symbol package](https://github.com/mhayashi1120/auto-highlight-symbol-mode) itself.
+You may also wish to customize some other variables from the [Auto Highlight Symbol package](https://github.com/jcs-elpa/auto-highlight-symbol) itself.
 
 ## Differences with the Spacemacs AHS Transient State
 
